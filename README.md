@@ -37,6 +37,7 @@ The app is intended to run as a local backend behind a reverse proxy such as ngi
 - Serves `index.html` at `/`
 - Serves static assets from `/assets`
 - Designed to run behind nginx
+- Exportof projects in markdown format
 
 ---
 
