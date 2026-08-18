@@ -1,0 +1,10 @@
+build/
+assets/
+libs/*
+
+.DS_Store
+*.log
+
+TODO
+
+projects.jsonl

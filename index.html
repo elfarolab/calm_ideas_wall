@@ -1,0 +1,2343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calm Ideas Wall</title>
+
+  <style>
+:root {
+  --bg: #0c1417;
+  --panel: #111b1f;
+  --panel-soft: #152227;
+
+  --card-tint-base: #111b1f;
+  --card-tint-base-hover: #152227;
+
+  --solarized-cyan: #2aa198;
+  --solarized-blue: #268bd2;
+  --solarized-green: #859900;
+  --solarized-yellow: #b58900;
+  --solarized-violet: #6c71c4;
+  --solarized-magenta: #d33682;
+  --solarized-orange: #cb4b16;
+  --solarized-neutral: #586e75;
+
+  --ink: #b9c6c7;
+  --ink-strong: #f2f6f5;
+  --muted: #7d8e92;
+
+  --line: #223036;
+  --line-strong: #334850;
+
+  --accent: #3aa79d;
+  --accent-soft: #102a2b;
+
+  --warn: #d4a017;
+  --warn-soft: #2e2a17;
+  --danger: #d8504a;
+  --danger-soft: #3d2221;
+
+  --seed-color: #8b93ff;
+  --growing-color: #a8c96b;
+  --parked-color: #d99853;
+
+  --high-color: #ff8a80;
+  --medium-color: #e6c07a;
+  --low-color: #93a7ad;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.55;
+  background: var(--bg);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+}
+
+/* Topbar */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.topbar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.title-block h1 {
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 1.65rem;
+  font-weight: 620;
+  color: var(--ink-strong);
+  letter-spacing: -0.01em;
+}
+
+.title-block p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.stat + .stat::before {
+  content: "·";
+  margin-right: 14px;
+  color: var(--line-strong);
+}
+
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+  margin-bottom: 24px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 8px 2px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.tab:hover {
+  color: var(--ink);
+}
+
+.tab.active {
+  color: var(--ink-strong);
+  border-color: var(--accent);
+}
+
+/* Buttons + fields */
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--panel-soft);
+  color: var(--ink-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+}
+
+textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.primary-btn,
+.ghost-btn,
+.danger-btn {
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.primary-btn {
+  background: var(--accent);
+  color: #05262b;
+  border-color: var(--accent);
+}
+
+.primary-btn:hover {
+  filter: brightness(1.04);
+}
+
+.ghost-btn {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.ghost-btn:hover {
+  border-color: var(--line-strong);
+  color: var(--ink-strong);
+}
+
+.danger-btn {
+  background: transparent;
+  border-color: #5f3a3a;
+  color: #e28f8d;
+}
+
+.danger-btn:hover {
+  border-color: #7a4b4a;
+}
+
+.danger-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.small-btn {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border-radius: 7px;
+}
+
+.topbar-actions .ghost-btn {
+  padding: 7px 10px;
+  font-size: 0.85rem;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+  gap: 16px;
+}
+
+.grid > .empty {
+  grid-column: 1 / -1;
+}
+
+.empty {
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Card */
+.card {
+  --tint: var(--solarized-neutral);
+
+  /* Fallback first, then modern color-mix */
+  background: var(--card-tint-base);
+  background:
+    color-mix(
+      in srgb,
+      var(--card-tint-base) 94%,
+      var(--tint) 6%
+    );
+
+  position: relative;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+/* Calm rotating tints */
+.card:nth-child(8n + 1) { --tint: var(--solarized-cyan); }
+.card:nth-child(8n + 2) { --tint: var(--solarized-blue); }
+.card:nth-child(8n + 3) { --tint: var(--solarized-green); }
+.card:nth-child(8n + 4) { --tint: var(--solarized-yellow); }
+.card:nth-child(8n + 5) { --tint: var(--solarized-violet); }
+.card:nth-child(8n + 6) { --tint: var(--solarized-magenta); }
+.card:nth-child(8n + 7) { --tint: var(--solarized-orange); }
+.card:nth-child(8n + 8) { --tint: var(--solarized-neutral); }
+
+.card:hover {
+  background: var(--panel-soft);
+  border-color: var(--line-strong);
+  border-top-color: var(--card-accent, var(--line-strong));
+}
+
+.card.status-seed {
+  --card-accent: var(--seed-color);
+  border-top-color: var(--seed-color);
+}
+
+.card.status-growing {
+  --card-accent: var(--growing-color);
+  border-top-color: var(--growing-color);
+}
+
+.card.status-parked {
+  --card-accent: var(--parked-color);
+  border-top-color: var(--parked-color);
+}
+
+.card h3 {
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 10px 0 14px;
+}
+
+.meta-item {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.status-pill.status-seed {
+  color: var(--seed-color);
+}
+
+.status-pill.status-growing {
+  color: var(--growing-color);
+}
+
+.status-pill.status-parked {
+  color: var(--parked-color);
+}
+
+.meta-warn {
+  color: var(--warn);
+}
+
+.meta-good {
+  color: var(--growing-color);
+}
+
+.card-preview {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.78rem;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px 16px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal {
+  position: relative;
+  width: min(900px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+#viewerBackdrop .modal {
+  width: min(860px, 100%);
+}
+
+#editorBackdrop .modal {
+  width: min(960px, 100%);
+}
+
+#markdownBackdrop .modal {
+  width: min(820px, 100%);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-title-block h2 {
+  margin: 0 0 8px;
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--ink-strong);
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* Sections inside viewer */
+.section {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+.section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.section h4 {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--section-heading, var(--ink-strong));
+}
+
+.section h4::before {
+  content: "";
+  width: 24px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--section-accent, var(--line-strong));
+  flex-shrink: 0;
+}
+
+.section p,
+.section li {
+  margin: 0;
+  line-height: 1.7;
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.section p.empty-text,
+.section li.empty-text {
+  color: var(--muted);
+}
+
+.section p,
+.note-text {
+  white-space: pre-wrap;
+}
+
+/* Section colors */
+.section-summary {
+  --section-accent: #3aa79d;
+  --section-heading: #8fd0c9;
+}
+
+.section-details {
+  --section-accent: #2aa8c9;
+  --section-heading: #8fd2ff;
+}
+
+.section-spark {
+  --section-accent: #6c71c4;
+  --section-heading: #a8adff;
+}
+
+.section-next {
+  --section-accent: #859900;
+  --section-heading: #c2d95b;
+}
+
+.section-blockers {
+  --section-accent: #c44536;
+  --section-heading: #ff8a83;
+}
+
+.section-tags {
+  --section-accent: #268bd2;
+  --section-heading: #8fd2ff;
+}
+
+.section-links {
+  --section-accent: #2ec7ba;
+  --section-heading: #8fe9de;
+}
+
+.section-images {
+  --section-accent: #d33682;
+  --section-heading: #ff9ecb;
+}
+
+.section-notes {
+  --section-accent: #b58900;
+  --section-heading: #e8c77a;
+}
+
+/* Structured text */
+.structured-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.structured-text .plain-line,
+.structured-text .list-line,
+.structured-text .title-line {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  line-height: 1.7;
+}
+
+.structured-text .blank-line {
+  height: 8px;
+}
+
+.structured-text .bullet {
+  color: var(--section-accent, var(--accent));
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.structured-text .label {
+  color: var(--ink-strong);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.structured-text .text {
+  color: var(--ink);
+}
+
+.structured-text .list-line.nested .label {
+  color: var(--ink);
+}
+
+/* Images */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.images-grid img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+/* Links */
+.links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.links-list a {
+  color: var(--accent);
+}
+
+/* Notes */
+.notes-logbook {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.note-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.note-row:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+
+.note-row:hover .note-actions,
+.note-row:focus-within .note-actions {
+  opacity: 1;
+}
+
+.note-date {
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding-top: 3px;
+}
+
+.note-text {
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.note-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.note-row-editing {
+  grid-template-columns: 130px 1fr auto;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.note-row-editing input {
+  padding: 8px 10px;
+}
+
+.add-note-row {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+  .note-row,
+  .note-row-editing,
+  .add-note-row {
+    grid-template-columns: 1fr;
+  }
+
+  .note-actions {
+    opacity: 1;
+    justify-content: flex-end;
+  }
+}
+
+/* Editor form */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px;
+}
+
+.field {
+  grid-column: span 12;
+}
+
+.field.small {
+  grid-column: span 4;
+}
+
+.field.medium {
+  grid-column: span 6;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.hint {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.warning-box {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #5b4a17;
+  background: var(--warn-soft);
+  color: #e6c873;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  display: none;
+}
+
+.warning-box.visible {
+  display: block;
+}
+
+.editor-footer {
+  margin-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-footer .left-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-footer .save-slot {
+  margin-left: auto;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar-right {
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .field.small,
+  .field.medium {
+    grid-column: span 12;
+  }
+}
+
+/* Markdown modal */
+#markdownText {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92rem;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+#markdownText[readonly] {
+  cursor: default;
+}
+
+.import-status {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+/* Toasts */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--accent);
+  background: var(--panel);
+  color: var(--ink-strong);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  animation: toast-in 160ms ease;
+  white-space: pre-line;
+  cursor: pointer;
+}
+
+.toast.success {
+  border-left-color: var(--growing-color);
+}
+
+.toast.error {
+  border-left-color: var(--danger);
+}
+
+.toast.info {
+  border-left-color: var(--accent);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="title-block">
+        <h1>Calm Ideas Wall</h1>
+        <p>A quiet place for projects, sparks, and next actions.</p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="stats" id="stats"></div>
+
+        <div class="topbar-actions">
+          <button id="exportBtn" class="ghost-btn">Export JSONL</button>
+          <button id="importBtn" class="ghost-btn">Import JSONL</button>
+          <input id="importFile" type="file" accept=".jsonl,.ndjson,.json,.txt" hidden />
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-status="all">All</button>
+        <button class="tab" data-status="growing">Growing</button>
+        <button class="tab" data-status="seed">Seed</button>
+        <button class="tab" data-status="parked">Parking lot</button>
+      </div>
+
+      <button id="newBtn" class="primary-btn">New project</button>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <!-- Viewer modal -->
+  <div id="viewerBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-block">
+          <h2 id="viewerTitle">Project</h2>
+          <div id="viewerStickers" class="meta-line"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="viewMarkdownBtn" class="ghost-btn">Markdown</button>
+          <button id="viewEditBtn" class="ghost-btn">Edit</button>
+          <button id="viewCloseBtn" class="ghost-btn">Close</button>
+        </div>
+      </div>
+
+      <div id="viewerBody"></div>
+    </div>
+  </div>
+
+  <!-- Editor modal -->
+  <div id="editorBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-block">
+          <h2 id="editorTitle">Editor</h2>
+          <div id="editorStickers" class="meta-line"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="editorCloseBtn" class="ghost-btn">Close</button>
+        </div>
+      </div>
+
+      <form id="projectForm">
+        <div class="form-grid">
+          <div class="field medium">
+            <label for="title">Title</label>
+            <input id="title" name="title" required />
+          </div>
+
+          <div class="field small">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="seed">Seed</option>
+              <option value="growing">Growing</option>
+              <option value="parked">Parked</option>
+            </select>
+          </div>
+
+          <div class="field small">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <div class="field small">
+            <label for="confidence">Confidence 0–10</label>
+            <input id="confidence" name="confidence" type="number" min="0" max="10" step="1" />
+          </div>
+
+          <div class="field medium">
+            <label for="version">Version / iteration</label>
+            <input id="version" name="version" type="number" min="1" step="1" />
+          </div>
+
+          <div class="field">
+            <label for="summary">Summary</label>
+            <textarea id="summary" name="summary" rows="2"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="details">Details</label>
+            <textarea id="details" name="details" rows="5"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="spark">Spark / why now</label>
+            <textarea id="spark" name="spark" rows="2"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="next">Next action</label>
+            <textarea id="next" name="next" rows="2"></textarea>
+            <div class="hint">A project can only be “growing” if this is filled.</div>
+          </div>
+
+          <div class="field">
+            <label for="blockers">Blockers</label>
+            <textarea id="blockers" name="blockers" rows="2"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="tags">Tags</label>
+            <input id="tags" name="tags" placeholder="money, local, research" />
+          </div>
+
+          <div class="field">
+            <label for="links">Links</label>
+            <textarea id="links" name="links" rows="3" placeholder="Label: https://example.com&#10;https://example.com/other"></textarea>
+            <div class="hint">One link per line. Use “Label: URL” or just a URL.</div>
+          </div>
+
+          <div class="field">
+            <label for="images">Images</label>
+            <textarea id="images" name="images" rows="3" placeholder="/assets/sketch.png&#10;https://example.com/image.jpg"></textarea>
+            <div class="hint">One image per line. Use local paths under /assets/ or full URLs.</div>
+          </div>
+        </div>
+
+        <div id="warning" class="warning-box"></div>
+
+        <div class="editor-footer">
+          <div class="left-actions">
+            <button type="button" id="deleteBtn" class="danger-btn">Delete</button>
+          </div>
+
+          <div class="save-slot">
+            <button type="submit" class="primary-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Markdown modal -->
+  <div id="markdownBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-block">
+          <h2 id="markdownTitle">Markdown</h2>
+          <p class="hint" style="margin-top:6px; margin-bottom:0;">
+            Images are excluded. You can copy this text into an email.
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button id="markdownCopyBtn" class="primary-btn">Copy</button>
+          <button id="markdownCloseBtn" class="ghost-btn">Close</button>
+        </div>
+      </div>
+
+      <textarea id="markdownText" rows="24" readonly></textarea>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    let projects = [];
+    let currentProject = null;
+    let currentStatusFilter = "all";
+    let editorNotes = [];
+    let editingNoteIndex = null;
+
+    const els = {
+      stats: document.getElementById("stats"),
+      tabs: document.getElementById("tabs"),
+      newBtn: document.getElementById("newBtn"),
+      grid: document.getElementById("grid"),
+
+      exportBtn: document.getElementById("exportBtn"),
+      importBtn: document.getElementById("importBtn"),
+      importFile: document.getElementById("importFile"),
+
+      viewerBackdrop: document.getElementById("viewerBackdrop"),
+      viewerTitle: document.getElementById("viewerTitle"),
+      viewerStickers: document.getElementById("viewerStickers"),
+      viewerBody: document.getElementById("viewerBody"),
+      viewMarkdownBtn: document.getElementById("viewMarkdownBtn"),
+      viewEditBtn: document.getElementById("viewEditBtn"),
+      viewCloseBtn: document.getElementById("viewCloseBtn"),
+
+      editorBackdrop: document.getElementById("editorBackdrop"),
+      editorTitle: document.getElementById("editorTitle"),
+      editorStickers: document.getElementById("editorStickers"),
+      editorCloseBtn: document.getElementById("editorCloseBtn"),
+      projectForm: document.getElementById("projectForm"),
+      deleteBtn: document.getElementById("deleteBtn"),
+      warning: document.getElementById("warning"),
+
+      markdownBackdrop: document.getElementById("markdownBackdrop"),
+      markdownTitle: document.getElementById("markdownTitle"),
+      markdownText: document.getElementById("markdownText"),
+      markdownCopyBtn: document.getElementById("markdownCopyBtn"),
+      markdownCloseBtn: document.getElementById("markdownCloseBtn"),
+    };
+
+    const fields = {
+      title: document.getElementById("title"),
+      status: document.getElementById("status"),
+      priority: document.getElementById("priority"),
+      confidence: document.getElementById("confidence"),
+      version: document.getElementById("version"),
+      summary: document.getElementById("summary"),
+      details: document.getElementById("details"),
+      spark: document.getElementById("spark"),
+      next: document.getElementById("next"),
+      blockers: document.getElementById("blockers"),
+      tags: document.getElementById("tags"),
+      links: document.getElementById("links"),
+      images: document.getElementById("images"),
+    };
+
+    // -----------------------------
+    // Helpers
+    // -----------------------------
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function statusLabel(status) {
+      const map = {
+        seed: "Seed",
+        growing: "Growing",
+        parked: "Parked",
+      };
+
+      return map[status] || status;
+    }
+
+    function projectMeta(project) {
+      const confidence = Number(project.confidence ?? 0);
+      const nextMissing = !String(project.next || "").trim();
+
+      return `
+        <span class="status-pill status-${escapeHtml(project.status)}">
+          <span class="status-dot"></span>
+          ${escapeHtml(statusLabel(project.status))}
+        </span>
+        <span class="meta-item">${escapeHtml(project.priority)} priority</span>
+        <span class="meta-item">confidence ${confidence}/10</span>
+        <span class="meta-item">v${Number(project.version ?? 1)}</span>
+        <span class="meta-item ${nextMissing ? "meta-warn" : "meta-good"}">
+          ${nextMissing ? "needs next" : "next set"}
+        </span>
+      `;
+    }
+
+    function renderStructuredText(raw) {
+      const text = String(raw || "").trim();
+      if (!text) return "";
+
+      const lines = text.split(/\r?\n/);
+
+      const html = lines
+        .map(line => {
+          if (!line.trim()) {
+            return `<div class="blank-line"></div>`;
+          }
+
+          const indent = (line.match(/^\s*/)[0] || "").length;
+          const nested = indent >= 2;
+          const trimmed = line.trim();
+
+          const listMatch = trimmed.match(/^(?:-|–|—|\*)\s+(.*)$/);
+          if (listMatch) {
+            const content = listMatch[1].trim();
+            const colonIndex = content.indexOf(":");
+
+            if (colonIndex > -1 && colonIndex < 48) {
+              const label = content.slice(0, colonIndex).trim();
+              const rest = content.slice(colonIndex + 1).trim();
+
+              return `
+                <div class="list-line${nested ? " nested" : ""}">
+                  <span class="bullet">–</span>
+                  <span class="label">${escapeHtml(label)}:</span>
+                  ${rest ? `<span class="text">${escapeHtml(rest)}</span>` : ""}
+                </div>
+              `;
+            }
+
+            return `
+              <div class="list-line${nested ? " nested" : ""}">
+                <span class="bullet">–</span>
+                <span class="text">${escapeHtml(content)}</span>
+              </div>
+            `;
+          }
+
+          const colonIndex = trimmed.indexOf(":");
+          if (colonIndex > -1 && colonIndex < 48) {
+            const label = trimmed.slice(0, colonIndex).trim();
+            const rest = trimmed.slice(colonIndex + 1).trim();
+
+            return `
+              <div class="title-line${nested ? " nested" : ""}">
+                <span class="label">${escapeHtml(label)}:</span>
+                ${rest ? `<span class="text">${escapeHtml(rest)}</span>` : ""}
+              </div>
+            `;
+          }
+
+          return `<div class="plain-line"><span class="text">${escapeHtml(trimmed)}</span></div>`;
+        })
+        .join("");
+
+      return `<div class="structured-text">${html}</div>`;
+    }
+
+    function parseLinksText(text) {
+      if (!text.trim()) return [];
+
+      return text
+        .split(/\n+/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          if (/^https?:\/\//i.test(line)) {
+            return { label: line, url: line };
+          }
+
+          const idx = line.indexOf(":");
+          if (idx > -1) {
+            const label = line.slice(0, idx).trim();
+            const url = line.slice(idx + 1).trim();
+            return { label: label || url, url };
+          }
+
+          return { label: line, url: line };
+        })
+        .filter(item => item.url);
+    }
+
+    function linksToText(links) {
+      if (typeof links === "string") return links;
+
+      return (links || [])
+        .map(link => link.label && link.label !== link.url ? `${link.label}: ${link.url}` : link.url)
+        .join("\n");
+    }
+
+    function imagesToText(images) {
+      if (typeof images === "string") return images;
+
+      return (images || []).join("\n");
+    }
+
+    function today() {
+      const d = new Date();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${d.getFullYear()}-${month}-${day}`;
+    }
+
+    function formatDateTime(iso) {
+      if (!iso) return "never";
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleString();
+    }
+
+    function showWarning(message) {
+      els.warning.textContent = message;
+      els.warning.classList.add("visible");
+    }
+
+    function clearWarning() {
+      els.warning.textContent = "";
+      els.warning.classList.remove("visible");
+    }
+
+    function sectionClassForTitle(title) {
+      const map = {
+        "Summary": "section-summary",
+        "Details": "section-details",
+        "Spark / why now": "section-spark",
+        "Next action": "section-next",
+        "Blockers": "section-blockers",
+        "Tags": "section-tags",
+        "Links": "section-links",
+        "Images": "section-images",
+        "Notes": "section-notes",
+      };
+
+      return map[title] || "";
+    }
+
+    function sectionIf(title, content) {
+      if (!content || !String(content).trim()) return "";
+
+      const sectionClass = sectionClassForTitle(title);
+
+      return `
+        <section class="section ${sectionClass}">
+          <h4>${escapeHtml(title)}</h4>
+          ${content}
+        </section>
+      `;
+    }
+
+    function isLikelyUrl(url) {
+      if (!url) return false;
+      return /^(https?:|\/|#|mailto:|tel:)/i.test(String(url).trim());
+    }
+
+    function markdownLinkFor(link) {
+      const url = String(link?.url || "").trim();
+      const label = String(link?.label || url).trim() || url;
+
+      if (!url) return label;
+
+      if (isLikelyUrl(url)) {
+        return label === url ? `<${url}>` : `[${label}](${url})`;
+      }
+
+      return label;
+    }
+
+    function buildMarkdown(project) {
+      const lines = [];
+
+      lines.push(`# ${project.title}`);
+      lines.push("");
+
+      lines.push(
+        [
+          `**Status:** ${project.status}`,
+          `**Priority:** ${project.priority}`,
+          `**Confidence:** ${project.confidence ?? 0}/10`,
+          `**Version:** ${project.version ?? 1}`
+        ].join(" · ")
+      );
+      lines.push("");
+
+      const next = String(project.next || "").trim();
+      lines.push(`**Next action:** ${next || "None set yet"}`);
+      lines.push("");
+
+      const optionalSections = [
+        ["Summary", project.summary],
+        ["Details", project.details],
+        ["Spark / why now", project.spark],
+        ["Blockers", project.blockers]
+      ];
+
+      for (const [label, value] of optionalSections) {
+        const text = String(value || "").trim();
+        if (!text) continue;
+
+        lines.push(`## ${label}`);
+        lines.push(text);
+        lines.push("");
+      }
+
+      const tags = Array.isArray(project.tags)
+        ? project.tags
+        : String(project.tags || "").split(",").map(tag => tag.trim()).filter(Boolean);
+
+      if (tags.length) {
+        lines.push("## Tags");
+        lines.push(tags.map(tag => `#${tag}`).join(" "));
+        lines.push("");
+      }
+
+      const links = Array.isArray(project.links) ? project.links : [];
+
+      if (links.length) {
+        lines.push("## Links");
+        for (const link of links) {
+          lines.push(`- ${markdownLinkFor(link)}`);
+        }
+        lines.push("");
+      }
+
+      const notes = Array.isArray(project.notes) ? project.notes : [];
+
+      if (notes.length) {
+        lines.push("## Notes");
+        for (const note of notes) {
+          const date = note.date || today();
+          const text = String(note.text || "").trim();
+          lines.push(`- **${date}:** ${text}`);
+        }
+        lines.push("");
+      }
+
+      lines.push(`---`);
+      lines.push(
+        [
+          `Created ${formatDateTime(project.createdAt)}`,
+          `Updated ${formatDateTime(project.updatedAt)}`,
+          project.lastViewed ? `Last viewed ${formatDateTime(project.lastViewed)}` : null
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      );
+
+      return lines.join("\n");
+    }
+
+    function openMarkdownModal(project) {
+      els.markdownTitle.textContent = project.title;
+      els.markdownText.value = buildMarkdown(project);
+      els.markdownBackdrop.classList.add("open");
+    }
+
+    function closeMarkdownModal() {
+      els.markdownBackdrop.classList.remove("open");
+    }
+
+    async function copyMarkdownText() {
+      const text = els.markdownText.value;
+      try {
+        await navigator.clipboard.writeText(text);
+        toast("Markdown copied.", "success");
+      } catch {
+        els.markdownText.select();
+        document.execCommand("copy");
+        toast("Markdown copied.", "success");
+      }
+    }
+
+    function downloadJsonl(filename, lines) {
+      const content = lines.length ? lines.join("\n") + "\n" : "";
+
+      const blob = new Blob([content], {
+        type: "application/x-ndjson"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportProjects() {
+      try {
+        const allProjects = await api("/api/projects");
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const filename = `idea-wall-backup-${stamp}.jsonl`;
+
+        const content = allProjects.length
+          ? allProjects.map(project => JSON.stringify(project)).join("\n") + "\n"
+          : "";
+
+        const blob = new Blob([content], {
+          type: "application/x-ndjson"
+        });
+
+        if (window.showSaveFilePicker) {
+          const fileHandle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [
+              {
+                description: "JSON Lines",
+                accept: {
+                  "text/plain": [".jsonl"],
+                  "application/json": [".jsonl"]
+                }
+              }
+            ]
+          });
+
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+
+          toast(
+            `Exported ${allProjects.length} ${allProjects.length === 1 ? "project" : "projects"}.`,
+            "success"
+          );
+        } else {
+          downloadJsonl(filename, allProjects.map(project => JSON.stringify(project)));
+
+          setTimeout(() => {
+            toast(
+              `Exported ${allProjects.length} ${allProjects.length === 1 ? "project" : "projects"}.`,
+              "success"
+            );
+          }, 800);
+        }
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+
+        toast(`Export failed: ${error.message}`, "error", 6000);
+      }
+    }
+
+    function normalizeImportedProject(raw) {
+      if (!raw || typeof raw !== "object") return null;
+
+      const title = String(raw.title || "Untitled idea").trim() || "Untitled idea";
+      const status = String(raw.status || "seed").trim().toLowerCase();
+      const priority = String(raw.priority || "medium").trim().toLowerCase();
+
+      let version = Number(raw.version || 1);
+      if (!Number.isFinite(version)) version = 1;
+      version = Math.max(1, Math.round(version));
+
+      let confidence = Number(raw.confidence ?? 5);
+      if (!Number.isFinite(confidence)) confidence = 5;
+      confidence = Math.min(10, Math.max(0, Math.round(confidence)));
+
+      const next = String(raw.next || "").trim();
+
+      return {
+        id: raw.id || null,
+        title,
+        status: ["seed", "growing", "parked"].includes(status) ? status : "seed",
+        priority: ["low", "medium", "high"].includes(priority) ? priority : "medium",
+        confidence,
+        version,
+        summary: String(raw.summary || "").trim(),
+        details: String(raw.details || "").trim(),
+        spark: String(raw.spark || "").trim(),
+        next,
+        blockers: String(raw.blockers || "").trim(),
+        tags: raw.tags || [],
+        links: raw.links || [],
+        images: raw.images || [],
+        notes: raw.notes || [],
+        createdAt: raw.createdAt || null,
+        updatedAt: raw.updatedAt || null,
+        lastViewed: raw.lastViewed || null
+      };
+    }
+
+    async function importProjectsFromFile(file) {
+      const text = await file.text();
+      const lines = text
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const existingProjects = await api("/api/projects");
+      const existingById = new Map(existingProjects.map(project => [project.id, project]));
+
+      let imported = 0;
+      let skipped = 0;
+      const errors = [];
+
+      for (const line of lines) {
+        let parsed;
+
+        try {
+          parsed = JSON.parse(line);
+        } catch {
+          skipped++;
+          continue;
+        }
+
+        const payload = normalizeImportedProject(parsed);
+
+        if (!payload) {
+          skipped++;
+          continue;
+        }
+
+        try {
+          const existing = payload.id ? existingById.get(payload.id) : null;
+
+          if (existing) {
+            await api(`/api/projects/${encodeURIComponent(payload.id)}`, {
+              method: "PUT",
+              body: JSON.stringify({
+                ...payload,
+                createdAt: existing.createdAt,
+                lastViewed: existing.lastViewed
+              })
+            });
+          } else {
+            const created = await api("/api/projects", {
+              method: "POST",
+              body: JSON.stringify(payload)
+            });
+
+            if (created?.id) {
+              existingById.set(created.id, created);
+            }
+          }
+
+          imported++;
+        } catch (error) {
+          errors.push(`${payload.title}: ${error.message}`);
+        }
+      }
+
+      const headline = `Import finished: ${imported} imported/updated, ${skipped} skipped, ${errors.length} failed.`;
+
+      if (errors.length) {
+        const preview = errors.slice(0, 3).join("\n");
+        const extra = errors.length > 3 ? `\n…and ${errors.length - 3} more in console.` : "";
+
+        toast(`${headline}\n${preview}${extra}`, "error", 9000);
+        console.error("Import errors:", errors);
+      } else {
+        toast(headline, "success");
+      }
+
+      await Promise.all([loadStats(), loadProjects()]);
+    }
+
+    function toast(message, type = "info", duration = 4000) {
+      const container = document.getElementById("toastContainer");
+
+      if (!container) {
+        return;
+      }
+
+      while (container.children.length >= 4) {
+        container.firstChild.remove();
+      }
+
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.textContent = message;
+      el.title = "Click to dismiss";
+
+      function dismiss() {
+        el.style.transition = "opacity 150ms ease, transform 150ms ease";
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-8px)";
+        setTimeout(() => el.remove(), 160);
+      }
+
+      el.addEventListener("click", dismiss);
+
+      container.appendChild(el);
+
+      if (duration > 0) {
+        setTimeout(dismiss, duration);
+      }
+    }
+
+    // -----------------------------
+    // API
+    // -----------------------------
+
+    async function api(path, options = {}) {
+      const res = await fetch(path, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        ...options,
+      });
+
+      if (!res.ok) {
+        let message = res.statusText || "Request failed.";
+
+        try {
+          const data = await res.json();
+          const detail = data?.detail;
+
+          if (typeof detail === "string") {
+            message = detail;
+          } else if (Array.isArray(detail)) {
+            message = detail.map(item => item.msg || JSON.stringify(item)).join("; ");
+          }
+        } catch {
+          try {
+            const text = await res.text();
+            if (text) message = text;
+          } catch {}
+        }
+
+        throw new Error(message);
+      }
+
+      return res.json();
+    }
+
+    async function loadProjects() {
+      const params = new URLSearchParams();
+      if (currentStatusFilter !== "all") params.set("status", currentStatusFilter);
+
+      try {
+        projects = await api(`/api/projects?${params.toString()}`);
+        renderProjects();
+      } catch (error) {
+        console.error(error);
+        projects = [];
+        els.grid.innerHTML = `<div class="empty">Could not load projects: ${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const meta = await api("/api/meta");
+        els.stats.innerHTML = `
+          <span class="stat">${meta.total} / ${meta.maxTotal} projects</span>
+          <span class="stat">${meta.growing} / ${meta.maxGrowing} growing</span>
+          <span class="stat">${meta.seed} seeds</span>
+          <span class="stat">${meta.parked} parked</span>
+        `;
+      } catch (error) {
+        console.error(error);
+        els.stats.innerHTML = `<span class="stat">Stats unavailable</span>`;
+      }
+    }
+
+    // -----------------------------
+    // Grid rendering
+    // -----------------------------
+
+    function projectToCard(project) {
+      const tags = (Array.isArray(project.tags) ? project.tags : [])
+        .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
+        .join("");
+
+      const preview = project.summary || project.details || project.next || "";
+
+      return `
+        <article class="card status-${escapeHtml(project.status)}" data-id="${escapeHtml(project.id)}">
+          <h3>${escapeHtml(project.title)}</h3>
+
+          <div class="card-meta">
+            ${projectMeta(project)}
+          </div>
+
+          <p class="card-preview">${escapeHtml(preview)}</p>
+
+          ${tags ? `<div class="card-tags">${tags}</div>` : ""}
+        </article>
+      `;
+    }
+
+    function renderProjects() {
+      if (!projects.length) {
+        els.grid.innerHTML = `<div class="empty">No projects here yet.</div>`;
+        return;
+      }
+
+      els.grid.innerHTML = projects.map(projectToCard).join("");
+    }
+
+    // -----------------------------
+    // Viewer
+    // -----------------------------
+
+    async function openViewer(project) {
+      currentProject = project;
+      renderViewer(project);
+      els.viewerBackdrop.classList.add("open");
+
+      try {
+        const updated = await api(`/api/projects/${encodeURIComponent(project.id)}/view`, {
+          method: "POST",
+        });
+
+        if (currentProject && currentProject.id === project.id) {
+          currentProject = updated;
+          renderViewer(updated);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+      await Promise.all([loadStats(), loadProjects()]);
+    }
+
+    function closeViewer() {
+      currentProject = null;
+      editingNoteIndex = null;
+      els.viewerBackdrop.classList.remove("open");
+    }
+
+    function renderViewer(project) {
+      els.viewerTitle.textContent = project.title;
+      els.viewerStickers.innerHTML = projectMeta(project);
+
+      const tags = (Array.isArray(project.tags) ? project.tags : [])
+        .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
+        .join("");
+
+      const links = (Array.isArray(project.links) ? project.links : [])
+        .map(link => {
+          const isUrl = /^(https?:|\/|#)/i.test(link.url || "");
+          const inner = isUrl
+            ? `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)}</a>`
+            : `<span>${escapeHtml(link.label)}</span>`;
+
+          return `<li>${inner}</li>`;
+        })
+        .join("");
+
+      const images = (Array.isArray(project.images) ? project.images : [])
+        .map(src => `<img src="${escapeHtml(src)}" alt="${escapeHtml(project.title)}" loading="lazy" />`)
+        .join("");
+
+      const metaLine = `
+        <div class="meta-line">
+          Created ${formatDateTime(project.createdAt)} · Updated ${formatDateTime(project.updatedAt)}
+          ${project.lastViewed ? ` · Last viewed ${formatDateTime(project.lastViewed)}` : ""}
+        </div>
+      `;
+
+      els.viewerBody.innerHTML = `
+        ${sectionIf("Summary", renderStructuredText(project.summary))}
+        ${sectionIf("Details", renderStructuredText(project.details))}
+        ${sectionIf("Spark / why now", renderStructuredText(project.spark))}
+        ${sectionIf("Next action", renderStructuredText(project.next))}
+        ${sectionIf("Blockers", renderStructuredText(project.blockers))}
+
+        ${tags ? `<section class="section section-tags"><h4>Tags</h4><div class="card-tags">${tags}</div></section>` : ""}
+
+        ${links ? `<section class="section section-links"><h4>Links</h4><ul class="links-list">${links}</ul></section>` : ""}
+
+        ${images ? `<section class="section section-images"><h4>Images</h4><div class="images-grid">${images}</div></section>` : ""}
+
+        <section class="section section-notes">
+          <h4>Notes</h4>
+          ${renderNotes(project.notes || [])}
+        </section>
+
+        ${metaLine}
+      `;
+    }
+
+    function renderNotes(notes) {
+      const noteList = notes || [];
+
+      const rows = noteList
+        .map((note, index) => {
+          if (editingNoteIndex === index) {
+            return `
+              <div class="note-row note-row-editing" data-index="${index}">
+                <input type="date" class="note-edit-date" value="${escapeHtml(note.date || today())}" />
+                <input type="text" class="note-edit-text" value="${escapeHtml(note.text)}" placeholder="Edit note" />
+                <div class="note-actions">
+                  <button type="button" class="note-save-btn primary-btn small-btn" data-index="${index}">Save</button>
+                  <button type="button" class="note-cancel-btn ghost-btn small-btn" data-index="${index}">Cancel</button>
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="note-row">
+              <div class="note-date">${escapeHtml(note.date || today())}</div>
+              <div class="note-text">${escapeHtml(note.text)}</div>
+              <div class="note-actions">
+                <button type="button" class="note-edit-btn ghost-btn small-btn" data-index="${index}">Edit</button>
+                <button type="button" class="note-delete-btn danger-btn small-btn" data-index="${index}">Delete</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      const empty = noteList.length
+        ? ""
+        : `<p class="empty-text">No notes yet.</p>`;
+
+      return `
+        <div class="notes-logbook">
+          ${rows}
+          ${empty}
+        </div>
+
+        <div class="add-note-row">
+          <input type="date" id="noteDate" value="${today()}" />
+          <input type="text" id="noteText" placeholder="Add a short note" />
+          <button type="button" class="primary-btn" id="addNoteBtn">Add</button>
+        </div>
+      `;
+    }
+
+    async function addNote() {
+      if (!currentProject) return;
+
+      const dateInput = document.getElementById("noteDate");
+      const textInput = document.getElementById("noteText");
+      const text = textInput?.value.trim();
+
+      if (!text) {
+        toast("Note text is required.", "error");
+        return;
+      }
+
+      try {
+        const updated = await api(
+          `/api/projects/${encodeURIComponent(currentProject.id)}/notes`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              date: dateInput?.value || today(),
+              text,
+            }),
+          }
+        );
+
+        currentProject = updated;
+        editingNoteIndex = null;
+        renderViewer(updated);
+
+        await Promise.all([loadProjects(), loadStats()]);
+        toast("Note added.", "success");
+      } catch (error) {
+        toast(error.message, "error", 6000);
+      }
+    }
+
+    function startEditingNote(index) {
+      if (!currentProject) return;
+
+      editingNoteIndex = index;
+      renderViewer(currentProject);
+
+      const input = document.querySelector(".note-edit-text");
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }
+
+    function stopEditingNote() {
+      if (!currentProject) return;
+
+      editingNoteIndex = null;
+      renderViewer(currentProject);
+    }
+
+    function projectPayloadForNoteChange(newNotes) {
+      return {
+        id: currentProject.id,
+        title: currentProject.title,
+        status: currentProject.status,
+        priority: currentProject.priority,
+        confidence: currentProject.confidence,
+        version: currentProject.version,
+        summary: currentProject.summary,
+        details: currentProject.details,
+        spark: currentProject.spark,
+        next: currentProject.next,
+        blockers: currentProject.blockers,
+        tags: currentProject.tags,
+        links: currentProject.links,
+        images: currentProject.images,
+        notes: newNotes,
+        createdAt: currentProject.createdAt,
+        updatedAt: currentProject.updatedAt,
+        lastViewed: currentProject.lastViewed,
+      };
+    }
+
+    async function saveEditedNote(index) {
+      if (!currentProject) return;
+
+      const row = document.querySelector(`.note-row-editing[data-index="${index}"]`);
+      const dateInput = row?.querySelector(".note-edit-date");
+      const textInput = row?.querySelector(".note-edit-text");
+      const text = textInput?.value.trim();
+
+      if (!text) {
+        toast("Note text is required.", "error");
+        return;
+      }
+
+      const notes = [...(currentProject.notes || [])];
+      notes[index] = {
+        date: dateInput?.value || today(),
+        text,
+      };
+
+      try {
+        const updated = await api(`/api/projects/${encodeURIComponent(currentProject.id)}`, {
+          method: "PUT",
+          body: JSON.stringify(projectPayloadForNoteChange(notes)),
+        });
+
+        currentProject = updated;
+        editingNoteIndex = null;
+        renderViewer(updated);
+
+        await Promise.all([loadProjects(), loadStats()]);
+        toast("Note updated.", "success");
+      } catch (error) {
+        toast(error.message, "error", 6000);
+      }
+    }
+
+    async function deleteNote(index) {
+      if (!currentProject) return;
+
+      const note = currentProject.notes?.[index];
+      const confirmed = window.confirm(`Delete “${note?.text || "this note"}”? This cannot be undone.`);
+      if (!confirmed) return;
+
+      const notes = [...(currentProject.notes || [])];
+      notes.splice(index, 1);
+
+      try {
+        const updated = await api(`/api/projects/${encodeURIComponent(currentProject.id)}`, {
+          method: "PUT",
+          body: JSON.stringify(projectPayloadForNoteChange(notes)),
+        });
+
+        currentProject = updated;
+        editingNoteIndex = null;
+        renderViewer(updated);
+
+        await Promise.all([loadProjects(), loadStats()]);
+        toast("Note deleted.", "success");
+      } catch (error) {
+        toast(error.message, "error", 6000);
+      }
+    }
+
+    // -----------------------------
+    // Editor
+    // -----------------------------
+
+    function setEditorForm(project) {
+      const isExisting = Boolean(project && project.id);
+
+      const draft = project || {
+        title: "",
+        status: "seed",
+        priority: "medium",
+        confidence: 5,
+        version: 1,
+        summary: "",
+        details: "",
+        spark: "",
+        next: "",
+        blockers: "",
+        tags: [],
+        links: [],
+        images: [],
+        notes: [],
+      };
+
+      els.editorTitle.textContent = isExisting ? "Edit project" : "New project";
+      els.editorStickers.innerHTML = projectMeta(draft);
+
+      els.projectForm.reset();
+
+      fields.title.value = draft.title || "";
+
+      const statusOptions = [...fields.status.options].map(option => option.value);
+      fields.status.value = statusOptions.includes(draft.status) ? draft.status : "seed";
+
+      const priorityOptions = [...fields.priority.options].map(option => option.value);
+      fields.priority.value = priorityOptions.includes(draft.priority) ? draft.priority : "medium";
+
+      fields.confidence.value = draft.confidence ?? 5;
+      fields.version.value = draft.version ?? 1;
+
+      fields.summary.value = draft.summary || "";
+      fields.details.value = draft.details || "";
+      fields.spark.value = draft.spark || "";
+      fields.next.value = draft.next || "";
+      fields.blockers.value = draft.blockers || "";
+      fields.tags.value = Array.isArray(draft.tags) ? draft.tags.join(", ") : String(draft.tags || "");
+      fields.links.value = linksToText(draft.links);
+      fields.images.value = imagesToText(draft.images);
+
+      els.deleteBtn.disabled = !isExisting;
+      clearWarning();
+    }
+
+    function openEditor(project) {
+      currentProject = project || null;
+      editorNotes = project?.notes || [];
+      setEditorForm(project);
+      els.editorBackdrop.classList.add("open");
+    }
+
+    function closeEditor() {
+      currentProject = null;
+      editorNotes = [];
+      els.editorBackdrop.classList.remove("open");
+    }
+
+    // -----------------------------
+    // Events
+    // -----------------------------
+
+    els.tabs.addEventListener("click", event => {
+      const button = event.target.closest(".tab");
+      if (!button) return;
+
+      document.querySelectorAll("#tabs .tab").forEach(tab => tab.classList.remove("active"));
+      button.classList.add("active");
+
+      currentStatusFilter = button.dataset.status;
+      loadProjects();
+    });
+
+    els.newBtn.addEventListener("click", () => {
+      openEditor(null);
+    });
+
+    els.grid.addEventListener("click", event => {
+      const card = event.target.closest(".card");
+      if (!card) return;
+
+      const project = projects.find(item => item.id === card.dataset.id);
+      if (project) {
+        openViewer(project);
+      }
+    });
+
+    els.viewEditBtn.addEventListener("click", () => {
+      const project = currentProject;
+      closeViewer();
+      openEditor(project);
+    });
+
+    els.viewCloseBtn.addEventListener("click", closeViewer);
+    els.editorCloseBtn.addEventListener("click", closeEditor);
+
+    els.viewerBackdrop.addEventListener("click", event => {
+      if (event.target === els.viewerBackdrop) closeViewer();
+    });
+
+    els.editorBackdrop.addEventListener("click", event => {
+      if (event.target === els.editorBackdrop) closeEditor();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+
+      if (els.markdownBackdrop.classList.contains("open")) {
+        closeMarkdownModal();
+      } else if (els.editorBackdrop.classList.contains("open")) {
+        closeEditor();
+      } else if (els.viewerBackdrop.classList.contains("open")) {
+        closeViewer();
+      }
+    });
+
+    els.viewerBody.addEventListener("click", event => {
+      if (!currentProject) return;
+
+      if (event.target.closest("#addNoteBtn")) {
+        addNote();
+        return;
+      }
+
+      const editBtn = event.target.closest(".note-edit-btn");
+      if (editBtn) {
+        startEditingNote(Number(editBtn.dataset.index));
+        return;
+      }
+
+      const deleteBtn = event.target.closest(".note-delete-btn");
+      if (deleteBtn) {
+        deleteNote(Number(deleteBtn.dataset.index));
+        return;
+      }
+
+      const saveBtn = event.target.closest(".note-save-btn");
+      if (saveBtn) {
+        saveEditedNote(Number(saveBtn.dataset.index));
+        return;
+      }
+
+      const cancelBtn = event.target.closest(".note-cancel-btn");
+      if (cancelBtn) {
+        stopEditingNote();
+        return;
+      }
+    });
+
+    els.viewerBody.addEventListener("keydown", event => {
+      if (event.target.id === "noteText" && event.key === "Enter") {
+        event.preventDefault();
+        addNote();
+      }
+
+      if (event.target.id === "noteDate" && event.key === "Enter") {
+        event.preventDefault();
+        addNote();
+      }
+
+      if (event.target.classList.contains("note-edit-text") && event.key === "Enter") {
+        event.preventDefault();
+        const row = event.target.closest(".note-row-editing");
+        if (row) {
+          saveEditedNote(Number(row.dataset.index));
+        }
+      }
+    });
+
+    fields.status.addEventListener("change", clearWarning);
+    fields.next.addEventListener("input", clearWarning);
+
+    els.projectForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      clearWarning();
+
+      const status = fields.status.value;
+      const next = fields.next.value.trim();
+
+      if (status === "growing" && !next) {
+        showWarning("A project can only be “growing” if this is filled. Fill the next action or choose seed/parked.");
+        return;
+      }
+
+      const confidenceText = fields.confidence.value.trim();
+      const rawConfidence = confidenceText === "" ? Number.NaN : Number(confidenceText);
+      const confidence = Number.isFinite(rawConfidence) ? Math.round(rawConfidence) : 5;
+
+      const versionText = fields.version.value.trim();
+      const rawVersion = versionText === "" ? Number.NaN : Number(versionText);
+      const version = Number.isFinite(rawVersion) ? Math.round(rawVersion) : 1;
+
+      const payload = {
+        title: fields.title.value.trim() || "Untitled idea",
+        status,
+        priority: fields.priority.value,
+        confidence: Math.min(10, Math.max(0, confidence)),
+        version: Math.max(1, version),
+        summary: fields.summary.value.trim(),
+        details: fields.details.value.trim(),
+        spark: fields.spark.value.trim(),
+        next,
+        blockers: fields.blockers.value.trim(),
+        tags: fields.tags.value,
+        links: fields.links.value,
+        images: fields.images.value,
+        notes: editorNotes,
+      };
+
+      if (currentProject?.id) {
+        payload.id = currentProject.id;
+
+        if (currentProject.createdAt) {
+          payload.createdAt = currentProject.createdAt;
+        }
+
+        if (currentProject.lastViewed) {
+          payload.lastViewed = currentProject.lastViewed;
+        }
+      }
+
+      try {
+        if (currentProject?.id) {
+          await api(`/api/projects/${encodeURIComponent(currentProject.id)}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+          });
+        } else {
+          await api("/api/projects", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+        }
+
+        closeEditor();
+        await Promise.all([loadStats(), loadProjects()]);
+      } catch (error) {
+        toast(error.message, "error", 6000);
+      }
+    });
+
+    els.deleteBtn.addEventListener("click", async () => {
+      if (!currentProject?.id) return;
+
+      const confirmed = window.confirm(`Delete “${currentProject.title}”? This cannot be undone.`);
+      if (!confirmed) return;
+
+      try {
+        await api(`/api/projects/${encodeURIComponent(currentProject.id)}`, {
+          method: "DELETE",
+        });
+
+        closeEditor();
+        await Promise.all([loadStats(), loadProjects()]);
+      } catch (error) {
+        toast(error.message, "error", 6000);
+      }
+    });
+
+    els.exportBtn.addEventListener("click", exportProjects);
+
+    els.importBtn.addEventListener("click", () => {
+      els.importFile.value = "";
+      els.importFile.click();
+    });
+
+    els.importFile.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        await importProjectsFromFile(file);
+      } catch (error) {
+        toast(`Import failed: ${error.message}`, "error", 6000);
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    els.viewMarkdownBtn.addEventListener("click", () => {
+      if (currentProject) openMarkdownModal(currentProject);
+    });
+
+    els.markdownCloseBtn.addEventListener("click", closeMarkdownModal);
+    els.markdownCopyBtn.addEventListener("click", copyMarkdownText);
+
+    els.markdownBackdrop.addEventListener("click", event => {
+      if (event.target === els.markdownBackdrop) closeMarkdownModal();
+    });
+
+    loadStats();
+    loadProjects();
+  </script>
+</body>
+</html>
+

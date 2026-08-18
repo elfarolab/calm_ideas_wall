@@ -1,0 +1,10 @@
+# Host to bind
+host: 127.0.0.1
+
+# Port to listen on
+port: 8080
+
+# Limits
+max_projects: 10
+max_growing: 3
+

@@ -1,0 +1,26 @@
+[Unit]
+Description=Calm Idea Wall C++ REST service
+After=network.target
+
+[Service]
+Type=simple
+User=calm_idea_wall
+Group=calm_idea_wall
+WorkingDirectory=/opt/calm_idea_wall
+Environment=PORT=8080
+
+ExecStart=/opt/calm_idea_wall/calm_idea_wall
+
+Restart=on-failure
+RestartSec=5
+
+# Production hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/calm_idea_wall
+
+[Install]
+WantedBy=multi-user.target
+
