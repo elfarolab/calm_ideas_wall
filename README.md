@@ -1,4 +1,4 @@
-# Calm Idea Wall (C++)
+# Calm Ideas Wall (C++)
 
 A small production-oriented C++ REST service for managing a limited set of project ideas.
 
@@ -220,8 +220,8 @@ Show help:
 
 ## Sample projects files
 
-A sample projects file is provide inot ./sample subdir.
-You can use the import button and functions to upload a sample set of projects for evaluation.
+A sample projects file is provide into ./sample subdir.
+You can use the import button and its functions to upload a sample set of projects for rapid evaluation and play around.
 
 ---
 
