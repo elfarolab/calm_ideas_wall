@@ -218,6 +218,13 @@ Show help:
 
 ---
 
+## Sample projects files
+
+A sample projects file is provide inot ./sample subdir.
+You can use the import button and functions to upload a sample set of projects for evaluation.
+
+---
+
 ## Requirements
 
 This project expects the required dependencies to be vendored into the `libs/` directory.

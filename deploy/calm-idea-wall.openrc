@@ -3,13 +3,13 @@
 # Copyright 1999-2025 Calm Idea Wall Contributors
 # Distributed under the terms of the MIT License
 
-name="calm_idea_wall"
+name="calm_ideas_wall"
 description="Calm Idea Wall C++ REST service"
 
 pidfile="/run/${name}.pid"
-command="/opt/calm_idea_wall/calm_idea_wall"
-command_user="calm_idea_wall"
-command_group="calm_idea_wall"
+command="/opt/calm_ideas_wall/calm_ideas_wall"
+command_user="calm_ideas_wall"
+command_group="calm_ideas_wall"
 command_background="yes"
 command_args=""
 
@@ -21,8 +21,8 @@ depend() {
 }
 
 start_pre() {
-    eaccess /opt/calm_idea_wall/calm_idea_wall
-    eaccess -U ${command_user}:${command_group} /opt/calm_idea_wall
+    eaccess /opt/calm_ideas_wall/calm_ideas_wall
+    eaccess -U ${command_user}:${command_group} /opt/calm_ideas_wall
 
     export PORT
 }
@@ -34,7 +34,7 @@ start() {
         --make-pidfile \
         --pidfile "${pidfile}" \
         --chuid "${command_user}:${command_group}" \
-        --chdir /opt/calm_idea_wall \
+        --chdir /opt/calm_ideas_wall \
         --exec "${command}"
 }
 

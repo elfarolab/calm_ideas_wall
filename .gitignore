@@ -1,6 +1,5 @@
 build/
 assets/
-libs/*
 
 .DS_Store
 *.log
