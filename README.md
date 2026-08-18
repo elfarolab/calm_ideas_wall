@@ -2,6 +2,10 @@
 
 A small production-oriented C++ REST service for managing a limited set of project ideas.
 
+![Main page of the WEB UI 1](images/webui1.png)
+![Main page of the WEB UI 2](images/webui2.png)
+
+
 It is built around:
 
 - [`cpp-httplib`](https://github.com/yhirose/cpp-httplib) for HTTP
