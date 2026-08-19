@@ -638,6 +638,38 @@ textarea {
   color: var(--ink);
 }
 
+/* Keyed list: bullet / label / description as grid columns.
+   The label track is max-content, so the browser sizes it to the widest
+   *rendered* label in the block and the description track lines up for free. */
+.keyed-list {
+  display: grid;
+  grid-template-columns: auto max-content minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 5px;
+}
+
+.keyed-list .kl-row {
+  display: contents;
+}
+
+.keyed-list .kl-bullet {
+  color: var(--section-accent, var(--accent));
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+.keyed-list .kl-label {
+  color: var(--ink-strong);
+  font-weight: 650;
+  white-space: nowrap;
+  line-height: 1.7;
+}
+
+.keyed-list .kl-text {
+  color: var(--ink);
+  line-height: 1.7;
+}
+
 /* Images */
 .images-grid {
   display: grid;
@@ -1237,63 +1269,124 @@ textarea {
     function renderStructuredText(raw) {
       const text = String(raw || "").trim();
       if (!text) return "";
-
+    
       const lines = text.split(/\r?\n/);
-
-      const html = lines
-        .map(line => {
-          if (!line.trim()) {
-            return `<div class="blank-line"></div>`;
-          }
-
-          const indent = (line.match(/^\s*/)[0] || "").length;
-          const nested = indent >= 2;
-          const trimmed = line.trim();
-
-          const listMatch = trimmed.match(/^(?:-|–|—|\*)\s+(.*)$/);
-          if (listMatch) {
-            const content = listMatch[1].trim();
-            const colonIndex = content.indexOf(":");
-
-            if (colonIndex > -1 && colonIndex < 48) {
-              const label = content.slice(0, colonIndex).trim();
-              const rest = content.slice(colonIndex + 1).trim();
-
-              return `
-                <div class="list-line${nested ? " nested" : ""}">
-                  <span class="bullet">–</span>
-                  <span class="label">${escapeHtml(label)}:</span>
-                  ${rest ? `<span class="text">${escapeHtml(rest)}</span>` : ""}
-                </div>
-              `;
-            }
-
+    
+      // A "keyed" list line: top-level dashed line of the form "KEY: description".
+      // Indented (nested) lines are deliberately excluded from the column alignment.
+      function keyedParse(line) {
+        if (!line.trim()) return null;
+        const indent = (line.match(/^\s*/)[0] || "").length;
+        if (indent >= 2) return null; // nested → never aligned
+    
+        const listMatch = line.trim().match(/^(?:-|–|—|\*)\s+(.*)$/);
+        if (!listMatch) return null;
+    
+        const content = listMatch[1].trim();
+        const colonIndex = content.indexOf(":");
+        if (colonIndex <= 0 || colonIndex >= 48) return null;
+    
+        const label = content.slice(0, colonIndex).trim();
+        if (!label) return null;
+    
+        const rest = content.slice(colonIndex + 1).trim();
+        return { label, rest };
+      }
+    
+      // Single line, current look (bullet / label / text as flex). Used for every
+      // line that is NOT part of a keyed column block.
+      function singleLine(line) {
+        const trimmed = line.trim();
+        const indent = (line.match(/^\s*/)[0] || "").length;
+        const nestedClass = indent >= 2 ? " nested" : "";
+    
+        const listMatch = trimmed.match(/^(?:-|–|—|\*)\s+(.*)$/);
+        if (listMatch) {
+          const content = listMatch[1].trim();
+          const colonIndex = content.indexOf(":");
+    
+          if (colonIndex > 0 && colonIndex < 48) {
+            const label = content.slice(0, colonIndex).trim();
+            const rest = content.slice(colonIndex + 1).trim();
+    
             return `
-              <div class="list-line${nested ? " nested" : ""}">
+              <div class="list-line${nestedClass}">
                 <span class="bullet">–</span>
-                <span class="text">${escapeHtml(content)}</span>
-              </div>
-            `;
-          }
-
-          const colonIndex = trimmed.indexOf(":");
-          if (colonIndex > -1 && colonIndex < 48) {
-            const label = trimmed.slice(0, colonIndex).trim();
-            const rest = trimmed.slice(colonIndex + 1).trim();
-
-            return `
-              <div class="title-line${nested ? " nested" : ""}">
                 <span class="label">${escapeHtml(label)}:</span>
                 ${rest ? `<span class="text">${escapeHtml(rest)}</span>` : ""}
               </div>
             `;
           }
-
-          return `<div class="plain-line"><span class="text">${escapeHtml(trimmed)}</span></div>`;
-        })
-        .join("");
-
-      return `<div class="structured-text">${html}</div>`;
+    
+          return `
+            <div class="list-line${nestedClass}">
+              <span class="bullet">–</span>
+              <span class="text">${escapeHtml(content)}</span>
+            </div>
+          `;
+        }
+    
+        const colonIndex = trimmed.indexOf(":");
+        if (colonIndex > 0 && colonIndex < 48) {
+          const label = trimmed.slice(0, colonIndex).trim();
+          const rest = trimmed.slice(colonIndex + 1).trim();
+    
+          return `
+            <div class="title-line${nestedClass}">
+              <span class="label">${escapeHtml(label)}:</span>
+              ${rest ? `<span class="text">${escapeHtml(rest)}</span>` : ""}
+            </div>
+          `;
+        }
+    
+        return `<div class="plain-line"><span class="text">${escapeHtml(trimmed)}</span></div>`;
+      }
+    
+      // One contiguous block of keyed lines → a grid so the label track sizes to
+      // the widest *rendered* label and every description starts on the same x.
+      function keyedBlock(items) {
+        const rows = items
+          .map(item => `
+            <div class="kl-row">
+              <span class="kl-bullet">–</span>
+              <span class="kl-label">${escapeHtml(item.label)}:</span>
+              ${item.rest ? `<span class="kl-text">${escapeHtml(item.rest)}</span>` : `<span class="kl-text"></span>`}
+            </div>
+          `)
+          .join("");
+    
+        return `<div class="keyed-list">${rows}</div>`;
+      }
+    
+      const parts = [];
+      let buffer = [];
+    
+      const flush = () => {
+        if (buffer.length) {
+          parts.push(keyedBlock(buffer));
+          buffer = [];
+        }
+      };
+    
+      for (const line of lines) {
+        if (!line.trim()) {
+          flush();
+          parts.push(`<div class="blank-line"></div>`);
+          continue;
+        }
+    
+        const keyed = keyedParse(line);
+        if (keyed) {
+          buffer.push(keyed);
+          continue;
+        }
+    
+        flush();
+        parts.push(singleLine(line));
+      }
+      flush();
+    
+      return `<div class="structured-text">${parts.join("")}</div>`;
     }
 
     function parseLinksText(text) {
