@@ -254,7 +254,7 @@ This project expects the required dependencies to be vendored into the `libs/` d
 libs/
 ├── httplib/
 │   └── include/
-│       └── httplib.hpp
+│       └── httplib.h
 ├── rapidjson/
 │   └── include/
 │       └── rapidjson/
@@ -502,20 +502,20 @@ For the service files below, I am using:
 Install this as:
 
 ```text
-/etc/systemd/system/calm-idea-wall.service
+/etc/systemd/system/calm-ideas-wall.service
 ```
 
 ### Enable and start
 
 ```sh
 sudo systemctl daemon-reload
-sudo systemctl enable --now calm-idea-wall
+sudo systemctl enable --now calm-ideas-wall
 ```
 
 ### Check status
 
 ```sh
-sudo systemctl status calm-idea-wall
+sudo systemctl status calm-ideas-wall
 ```
 
 ### Watch logs from the app log file

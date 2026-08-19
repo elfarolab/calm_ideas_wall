@@ -1,7 +1,3 @@
-#ifndef SPDLOG_HEADER_ONLY
-#define SPDLOG_HEADER_ONLY 1
-#endif
-
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -1278,6 +1274,7 @@ static void setup_logging() {
     g_logger = std::make_shared<spdlog::logger>("calm", sinks.begin(), sinks.end());
     g_logger->set_level(spdlog::level::info);
     g_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+    g_logger->flush_on(spdlog::level::info);
 
     spdlog::register_logger(g_logger);
     spdlog::set_default_logger(g_logger);
