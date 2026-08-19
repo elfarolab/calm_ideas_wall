@@ -251,23 +251,6 @@ static std::string get_text(const Value& obj, const char* key, const std::string
     return s.empty() ? default_value : s;
 }
 
-static bool get_bool(const Value& obj, const char* key, bool default_value) {
-    static const Value null_value;
-    const Value& v = get_member(obj, key, null_value);
-
-    if (v.IsBool()) {
-        return v.GetBool();
-    }
-
-    if (v.IsString()) {
-        std::string s = to_lower(trim(v.GetString()));
-        if (s == "true" || s == "1" || s == "yes" || s == "on") return true;
-        if (s == "false" || s == "0" || s == "no" || s == "off") return false;
-    }
-
-    return default_value;
-}
-
 static int parse_int_from_string(const std::string& raw, int default_value) {
     std::string s = trim(raw);
     if (s.empty()) return default_value;
@@ -309,6 +292,33 @@ static int get_int(const Value& obj, const char* key, int default_value) {
 
     if (v.IsString()) {
         return parse_int_from_string(v.GetString(), default_value);
+    }
+
+    return default_value;
+}
+
+static bool get_bool(const Value& obj, const char* key, bool default_value) {
+    static const Value null_value;
+    const Value& v = get_member(obj, key, null_value);
+
+    if (v.IsBool()) {
+        return v.GetBool();
+    }
+
+    if (v.IsInt() || v.IsUint() || v.IsInt64() || v.IsUint64()) {
+        long long val = 0;
+
+        if (v.IsInt()) val = v.GetInt();
+        else if (v.IsUint()) val = v.GetUint();
+        else if (v.IsInt64()) val = v.GetInt64();
+        else val = static_cast<long long>(v.GetUint64());
+
+        return val != 0;
+    }
+
+    if (v.IsString()) {
+        std::string s = to_lower(trim(v.GetString()));
+        return s == "true" || s == "1" || s == "yes" || s == "y" || s == "love" || s == "loved";
     }
 
     return default_value;
@@ -622,7 +632,6 @@ static std::string normalize_project(const Document& data, const std::string& id
 
     return to_json_string(out);
 }
-
 
 // -----------------------------------------------------------------------------
 // Configuration (minimal flat config parser, no yaml-cpp)
@@ -1127,15 +1136,14 @@ static void api_update_project(const httplib::Request& req, httplib::Response& r
 
     auto& alloc = doc.GetAllocator();
 
+    if (!doc.HasMember("love")) {
+        bool old_love = get_bool(old_doc, "love", false);
+        doc.AddMember("love", old_love, alloc);
+    }
+
     doc.RemoveMember("id");
     Value id_value(project_id.c_str(), alloc);
     doc.AddMember("id", id_value.Move(), alloc);
-
-    if (!doc.HasMember("love") || doc["love"].IsNull()) {
-        bool old_love = get_bool(old_doc, "love", false);
-        doc.RemoveMember("love");
-        doc.AddMember("love", old_love, alloc);
-    }
 
     std::string created_at = get_text(old_doc, "createdAt", now_iso());
     if (created_at.empty()) created_at = now_iso();

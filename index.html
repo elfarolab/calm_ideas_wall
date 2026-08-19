@@ -38,6 +38,8 @@
   --danger: #d8504a;
   --danger-soft: #3d2221;
 
+  --heart: #ff6b81;
+
   --seed-color: #8b93ff;
   --growing-color: #a8c96b;
   --parked-color: #d99853;
@@ -415,6 +417,16 @@ textarea {
   font-size: 0.78rem;
 }
 
+/* Love icon */
+.love-icon {
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: 8px;
+  vertical-align: -0.18em;
+  color: var(--heart);
+  flex-shrink: 0;
+}
+
 /* Modal */
 .modal-backdrop {
   position: fixed;
@@ -440,12 +452,6 @@ textarea {
   border-radius: 16px;
   padding: 26px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-}
-
-#viewerTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 #viewerBackdrop .modal {
@@ -804,6 +810,35 @@ textarea {
   margin-left: auto;
 }
 
+.version-love-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.version-love-row .version-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.love-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.love-check input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--heart);
+  cursor: pointer;
+}
+
 @media (max-width: 760px) {
   .topbar {
     grid-template-columns: 1fr;
@@ -841,26 +876,6 @@ textarea {
   color: var(--muted);
   font-size: 0.9rem;
   min-height: 1.2em;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-input[type="checkbox"] {
-  width: auto;
-}
-
-.love-heart {
-  display: inline-block;
-  font-size: 1.15em;
-  line-height: 1;
-  color: var(--solarized-magenta);
-  margin-right: 0.35em;
-  vertical-align: -0.06em;
 }
 
 /* Toasts */
@@ -1016,14 +1031,13 @@ input[type="checkbox"] {
 
           <div class="field medium">
             <label for="version">Version / iteration</label>
-            <input id="version" name="version" type="number" min="1" step="1" />
-          </div>
-
-          <div class="field small">
-            <label for="love" class="checkbox-label">
-              <input id="love" name="love" type="checkbox" />
-              I love it!
-            </label>
+            <div class="version-love-row">
+              <input id="version" name="version" type="number" min="1" step="1" class="version-input" />
+              <label class="love-check" for="love">
+                <input id="love" name="love" type="checkbox" />
+                I love it!
+              </label>
+            </div>
           </div>
 
           <div class="field">
@@ -1154,6 +1168,7 @@ input[type="checkbox"] {
       priority: document.getElementById("priority"),
       confidence: document.getElementById("confidence"),
       version: document.getElementById("version"),
+      love: document.getElementById("love"),
       summary: document.getElementById("summary"),
       details: document.getElementById("details"),
       spark: document.getElementById("spark"),
@@ -1162,7 +1177,6 @@ input[type="checkbox"] {
       tags: document.getElementById("tags"),
       links: document.getElementById("links"),
       images: document.getElementById("images"),
-      love: document.getElementById("love"),
     };
 
     // -----------------------------
@@ -1186,6 +1200,20 @@ input[type="checkbox"] {
       };
 
       return map[status] || status;
+    }
+
+    function loveIconHtml(project) {
+      if (!project || !project.love) return "";
+
+      return `
+        <svg class="love-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+        </svg>
+      `;
+    }
+
+    function titleWithLove(project) {
+      return `${loveIconHtml(project)}${escapeHtml(project?.title || "")}`;
     }
 
     function projectMeta(project) {
@@ -1568,6 +1596,10 @@ input[type="checkbox"] {
 
       const next = String(raw.next || "").trim();
 
+      const love = typeof raw.love === "string"
+        ? ["true", "1", "yes", "y", "love", "loved"].includes(String(raw.love).trim().toLowerCase())
+        : Boolean(raw.love);
+
       return {
         id: raw.id || null,
         title,
@@ -1575,7 +1607,7 @@ input[type="checkbox"] {
         priority: ["low", "medium", "high"].includes(priority) ? priority : "medium",
         confidence,
         version,
-        love: raw.love === true || String(raw.love || "").toLowerCase() === "true",
+        love,
         summary: String(raw.summary || "").trim(),
         details: String(raw.details || "").trim(),
         spark: String(raw.spark || "").trim(),
@@ -1767,24 +1799,24 @@ input[type="checkbox"] {
     // -----------------------------
     // Grid rendering
     // -----------------------------
+
     function projectToCard(project) {
       const tags = (Array.isArray(project.tags) ? project.tags : [])
         .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
         .join("");
-    
+
       const preview = project.summary || project.details || project.next || "";
-      const loveIcon = project.love ? `<span class="love-heart" aria-hidden="true">♥</span>` : "";
-    
+
       return `
         <article class="card status-${escapeHtml(project.status)}" data-id="${escapeHtml(project.id)}">
-          <h3>${loveIcon}<span>${escapeHtml(project.title)}</span></h3>
-    
+          <h3>${titleWithLove(project)}</h3>
+
           <div class="card-meta">
             ${projectMeta(project)}
           </div>
-    
+
           <p class="card-preview">${escapeHtml(preview)}</p>
-    
+
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </article>
       `;
@@ -1831,10 +1863,7 @@ input[type="checkbox"] {
     }
 
     function renderViewer(project) {
-      els.viewerTitle.innerHTML = project.love
-        ? `<span class="love-heart" aria-hidden="true">♥</span> ${escapeHtml(project.title)}`
-        : escapeHtml(project.title);
-
+      els.viewerTitle.innerHTML = titleWithLove(project);
       els.viewerStickers.innerHTML = projectMeta(project);
 
       const tags = (Array.isArray(project.tags) ? project.tags : [])
@@ -1997,6 +2026,7 @@ input[type="checkbox"] {
         priority: currentProject.priority,
         confidence: currentProject.confidence,
         version: currentProject.version,
+        love: Boolean(currentProject.love),
         summary: currentProject.summary,
         details: currentProject.details,
         spark: currentProject.spark,
@@ -2009,7 +2039,6 @@ input[type="checkbox"] {
         createdAt: currentProject.createdAt,
         updatedAt: currentProject.updatedAt,
         lastViewed: currentProject.lastViewed,
-        love: currentProject.love,
       };
     }
 
@@ -2089,6 +2118,7 @@ input[type="checkbox"] {
         priority: "medium",
         confidence: 5,
         version: 1,
+        love: false,
         summary: "",
         details: "",
         spark: "",
@@ -2381,4 +2411,3 @@ input[type="checkbox"] {
   </script>
 </body>
 </html>
-
