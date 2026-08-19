@@ -1,7 +1,9 @@
 # Calm Ideas Wall (C++)
 
 A small production-oriented C++ REST service for managing a limited set of project ideas.  
-Completely private, no spiware, no remote javascripts, no remote fonts, google free.  
+Completely private, no spyware, no remote javascript, no remote fonts, google free.  
+Easy to export.  
+ 
 
 ![Main page of the WEB UI 1](images/webui1.png)
 ![Main page of the WEB UI 2](images/webui2.png)
