@@ -178,23 +178,6 @@ static std::string random_hex12() {
 // RapidJSON helpers
 // -----------------------------------------------------------------------------
 
-static bool get_bool(const Value& obj, const char* key, bool default_value) {
-    static const Value null_value;
-    const Value& v = get_member(obj, key, null_value);
-
-    if (v.IsBool()) {
-        return v.GetBool();
-    }
-
-    if (v.IsString()) {
-        std::string s = to_lower(trim(v.GetString()));
-        if (s == "true" || s == "1" || s == "yes" || s == "on") return true;
-        if (s == "false" || s == "0" || s == "no" || s == "off") return false;
-    }
-
-    return default_value;
-}
-
 static std::string to_json_string(const Value& v) {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
@@ -266,6 +249,23 @@ static std::string get_text(const Value& obj, const char* key, const std::string
 
     std::string s = trim(value_to_text(v));
     return s.empty() ? default_value : s;
+}
+
+static bool get_bool(const Value& obj, const char* key, bool default_value) {
+    static const Value null_value;
+    const Value& v = get_member(obj, key, null_value);
+
+    if (v.IsBool()) {
+        return v.GetBool();
+    }
+
+    if (v.IsString()) {
+        std::string s = to_lower(trim(v.GetString()));
+        if (s == "true" || s == "1" || s == "yes" || s == "on") return true;
+        if (s == "false" || s == "0" || s == "no" || s == "off") return false;
+    }
+
+    return default_value;
 }
 
 static int parse_int_from_string(const std::string& raw, int default_value) {
@@ -622,6 +622,7 @@ static std::string normalize_project(const Document& data, const std::string& id
 
     return to_json_string(out);
 }
+
 
 // -----------------------------------------------------------------------------
 // Configuration (minimal flat config parser, no yaml-cpp)
