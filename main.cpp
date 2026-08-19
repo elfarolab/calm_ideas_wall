@@ -178,6 +178,23 @@ static std::string random_hex12() {
 // RapidJSON helpers
 // -----------------------------------------------------------------------------
 
+static bool get_bool(const Value& obj, const char* key, bool default_value) {
+    static const Value null_value;
+    const Value& v = get_member(obj, key, null_value);
+
+    if (v.IsBool()) {
+        return v.GetBool();
+    }
+
+    if (v.IsString()) {
+        std::string s = to_lower(trim(v.GetString()));
+        if (s == "true" || s == "1" || s == "yes" || s == "on") return true;
+        if (s == "false" || s == "0" || s == "no" || s == "off") return false;
+    }
+
+    return default_value;
+}
+
 static std::string to_json_string(const Value& v) {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
@@ -564,6 +581,8 @@ static std::string normalize_project(const Document& data, const std::string& id
     int confidence = get_int(data, "confidence", 5);
     confidence = std::max(0, std::min(10, confidence));
 
+    bool love = get_bool(data, "love", false);
+
     std::string next_action = get_text(data, "next", "");
 
     if (status == "growing" && next_action.empty()) {
@@ -579,6 +598,7 @@ static std::string normalize_project(const Document& data, const std::string& id
 
     out.AddMember("confidence", confidence, out.GetAllocator());
     out.AddMember("version", version, out.GetAllocator());
+    out.AddMember("love", love, out.GetAllocator());
 
     add_string_member(out, "summary", get_text(data, "summary", ""));
     add_string_member(out, "details", get_text(data, "details", ""));
@@ -1109,6 +1129,12 @@ static void api_update_project(const httplib::Request& req, httplib::Response& r
     doc.RemoveMember("id");
     Value id_value(project_id.c_str(), alloc);
     doc.AddMember("id", id_value.Move(), alloc);
+
+    if (!doc.HasMember("love") || doc["love"].IsNull()) {
+        bool old_love = get_bool(old_doc, "love", false);
+        doc.RemoveMember("love");
+        doc.AddMember("love", old_love, alloc);
+    }
 
     std::string created_at = get_text(old_doc, "createdAt", now_iso());
     if (created_at.empty()) created_at = now_iso();

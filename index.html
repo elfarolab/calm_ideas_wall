@@ -442,6 +442,12 @@ textarea {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 
+#viewerTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 #viewerBackdrop .modal {
   width: min(860px, 100%);
 }
@@ -837,6 +843,26 @@ textarea {
   min-height: 1.2em;
 }
 
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  width: auto;
+}
+
+.love-heart {
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--solarized-magenta);
+  transform: translateY(-1px);
+}
+
 /* Toasts */
 .toast-container {
   position: fixed;
@@ -993,6 +1019,13 @@ textarea {
             <input id="version" name="version" type="number" min="1" step="1" />
           </div>
 
+          <div class="field small">
+            <label for="love" class="checkbox-label">
+              <input id="love" name="love" type="checkbox" />
+              I love it!
+            </label>
+          </div>
+
           <div class="field">
             <label for="summary">Summary</label>
             <textarea id="summary" name="summary" rows="2"></textarea>
@@ -1129,6 +1162,7 @@ textarea {
       tags: document.getElementById("tags"),
       links: document.getElementById("links"),
       images: document.getElementById("images"),
+      love: document.getElementById("love"),
     };
 
     // -----------------------------
@@ -1541,6 +1575,7 @@ textarea {
         priority: ["low", "medium", "high"].includes(priority) ? priority : "medium",
         confidence,
         version,
+        love: raw.love === true || String(raw.love || "").toLowerCase() === "true",
         summary: String(raw.summary || "").trim(),
         details: String(raw.details || "").trim(),
         spark: String(raw.spark || "").trim(),
@@ -1732,24 +1767,24 @@ textarea {
     // -----------------------------
     // Grid rendering
     // -----------------------------
-
     function projectToCard(project) {
       const tags = (Array.isArray(project.tags) ? project.tags : [])
         .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
         .join("");
-
+    
       const preview = project.summary || project.details || project.next || "";
-
+      const loveIcon = project.love ? `<span class="love-heart" aria-hidden="true">♥</span>` : "";
+    
       return `
         <article class="card status-${escapeHtml(project.status)}" data-id="${escapeHtml(project.id)}">
-          <h3>${escapeHtml(project.title)}</h3>
-
+          <h3>${loveIcon}<span>${escapeHtml(project.title)}</span></h3>
+    
           <div class="card-meta">
             ${projectMeta(project)}
           </div>
-
+    
           <p class="card-preview">${escapeHtml(preview)}</p>
-
+    
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </article>
       `;
@@ -1796,7 +1831,10 @@ textarea {
     }
 
     function renderViewer(project) {
-      els.viewerTitle.textContent = project.title;
+      els.viewerTitle.innerHTML = project.love
+        ? `<span class="love-heart" aria-hidden="true">♥</span> ${escapeHtml(project.title)}`
+        : escapeHtml(project.title);
+
       els.viewerStickers.innerHTML = projectMeta(project);
 
       const tags = (Array.isArray(project.tags) ? project.tags : [])
@@ -1971,6 +2009,7 @@ textarea {
         createdAt: currentProject.createdAt,
         updatedAt: currentProject.updatedAt,
         lastViewed: currentProject.lastViewed,
+        love: currentProject.love,
       };
     }
 
@@ -2076,6 +2115,7 @@ textarea {
 
       fields.confidence.value = draft.confidence ?? 5;
       fields.version.value = draft.version ?? 1;
+      fields.love.checked = Boolean(draft.love);
 
       fields.summary.value = draft.summary || "";
       fields.details.value = draft.details || "";
@@ -2252,6 +2292,7 @@ textarea {
         links: fields.links.value,
         images: fields.images.value,
         notes: editorNotes,
+        love: fields.love.checked,
       };
 
       if (currentProject?.id) {
