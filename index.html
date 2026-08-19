@@ -612,6 +612,11 @@ textarea {
   gap: 10px;
   align-items: baseline;
   line-height: 1.7;
+  margin-top: 6px;
+}
+
+.structured-text .title-line:first-child {
+  margin-top: 0;
 }
 
 .structured-text .blank-line {
@@ -627,6 +632,12 @@ textarea {
 .structured-text .label {
   color: var(--ink-strong);
   font-weight: 650;
+  white-space: nowrap;
+}
+
+.structured-text .title-line .label {
+  color: color-mix(in srgb, var(--section-heading, #8fd2ff) 62%, #6c787d 38%);
+  font-weight: 700;
   white-space: nowrap;
 }
 
