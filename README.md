@@ -41,7 +41,7 @@ The app is intended to run as a local backend behind a reverse proxy such as ngi
 - Serves `index.html` at `/`
 - Serves static assets from `/assets`
 - Designed to run behind nginx
-- Exportof projects in markdown format
+- Export to Markdown for copy/paste
 
 ---
 
@@ -360,7 +360,7 @@ The application writes a log file named:
 calm_ideas_wall.log
 ```
 
-in the **current working directory**.
+in the **./logs subdirectory**.
 
 So if you run:
 
@@ -371,17 +371,15 @@ So if you run:
 from the project root, the log is written to:
 
 ```text
-./calm_ideas_wall.log
+./logs/calm_ideas_wall.log
 ```
-
-If you run it from a different directory, the log file is created in that directory.
 
 For a systemd or OpenRC deployment, the working directory is fixed, so the log location becomes predictable.
 
 In the production examples below, the log file is expected at:
 
 ```text
-/opt/calm_ideas_wall/calm_ideas_wall.log
+/opt/calm_ideas_wall/logs/calm_ideas_wall.log
 ```
 
 ---
@@ -397,7 +395,7 @@ Recommended production setup:
 - local bind: `127.0.0.1:8080`
 - nginx reverse proxy handling public traffic
 - config file: `/opt/calm_ideas_wall/config`
-- logs written to `/opt/calm_ideas_wall/calm_ideas_wall.log`
+- logs written to `/opt/calm_ideas_wall/logs/calm_ideas_wall.log`
 
 ### Recommended production config file
 
@@ -521,7 +519,7 @@ sudo systemctl status calm-ideas-wall
 ### Watch logs from the app log file
 
 ```sh
-tail -f /opt/calm_ideas_wall/calm_ideas_wall.log
+tail -f /opt/calm_ideas_wall/logs/calm_ideas_wall.log
 ```
 
 If your service file sets:
@@ -686,6 +684,31 @@ You may also want to back up:
 ```text
 /opt/calm_ideas_wall/config
 ```
+
+#### Backup script
+
+The script backs up `/opt/calm_ideas_wall/projects.jsonl` to
+`/opt/calm_ideas_wall/backups/projects_backup_YYMMDD_HHMMSS.bz2`
+and keeps only the last 3 backups.
+
+You can find it here:
+
+`/opt/calm_ideas_wall/scripts/backup_projects.sh`
+
+##### Add the cron job for the `calm_ideas_wall` user:
+
+```bash
+sudo -u calm_ideas_wall crontab -e
+```
+
+Add:
+
+```cron
+0 */12 * * * /opt/calm_ideas_wall/scripts/backup_projects.sh
+```
+
+The job runs at 00:00 and 12:00. Logs are written to
+`/opt/calm_ideas_wall/logs/backup_projects.log`.
 
 ---
 

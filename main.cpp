@@ -1301,26 +1301,58 @@ static void api_add_note(const httplib::Request& req, httplib::Response& res) {
 // Logging setup
 // -----------------------------------------------------------------------------
 
-static void setup_logging() {
-    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("calm_ideas_wall.log", true);
-    auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+static bool setup_logging() {
+    const fs::path log_dir = BASE_DIR / "logs";
+    const fs::path log_file = log_dir / "calm_ideas_wall.log";
 
-    std::vector<spdlog::sink_ptr> sinks{file_sink, stdout_sink};
-    g_logger = std::make_shared<spdlog::logger>("calm", sinks.begin(), sinks.end());
-    g_logger->set_level(spdlog::level::info);
-    g_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
-    g_logger->flush_on(spdlog::level::info);
+    std::error_code ec;
 
-    spdlog::register_logger(g_logger);
-    spdlog::set_default_logger(g_logger);
+    // Check if the logs directory exists; if not, create it.
+    if (!fs::exists(log_dir, ec)) {
+        if (ec) {
+            std::cerr << "Failed to check log directory: " << ec.message() << "\n";
+            return false;
+        }
+
+        fs::create_directories(log_dir, ec);
+        if (ec) {
+            std::cerr << "Failed to create log directory: " << ec.message() << "\n";
+            return false;
+        }
+    }
+
+    try {
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file.string(), true);
+        auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+        std::vector<spdlog::sink_ptr> sinks{file_sink, stdout_sink};
+        g_logger = std::make_shared<spdlog::logger>("calm", sinks.begin(), sinks.end());
+        g_logger->set_level(spdlog::level::info);
+        g_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+        g_logger->flush_on(spdlog::level::info);
+
+        spdlog::register_logger(g_logger);
+        spdlog::set_default_logger(g_logger);
+
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to initialize logging: " << e.what() << "\n";
+        return false;
+    } catch (...) {
+        std::cerr << "Failed to initialize logging: unknown error\n";
+        return false;
+    }
 }
+
 
 // -----------------------------------------------------------------------------
 // Main
 // -----------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    setup_logging();
+    if (!setup_logging()) {
+        return 1;
+    }
 
     // ------------------------------------------------------------------
     // Command line options
