@@ -612,6 +612,7 @@ static std::string normalize_project(const Document& data, const std::string& id
 
     add_string_member(out, "summary", get_text(data, "summary", ""));
     add_string_member(out, "details", get_text(data, "details", ""));
+    add_string_member(out, "docs", get_text(data, "docs", ""));
     add_string_member(out, "spark", get_text(data, "spark", ""));
     add_string_member(out, "next", next_action);
     add_string_member(out, "blockers", get_text(data, "blockers", ""));

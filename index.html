@@ -22,6 +22,8 @@
   --solarized-magenta: #d33682;
   --solarized-orange: #cb4b16;
   --solarized-neutral: #586e75;
+  --solarized-teal: #2ec7ba;
+  --solarized-teal-bright: #8fe9de;
 
   --ink: #b9c6c7;
   --ink-strong: #f2f6f5;
@@ -437,7 +439,7 @@ textarea {
   justify-content: center;
   padding: 28px 16px;
   overflow-y: auto;
-  z-index: 20;
+  z-index: 100;
 }
 
 .modal-backdrop.open {
@@ -973,6 +975,140 @@ textarea {
     transform: translateY(0);
   }
 }
+
+/* Viewer tabs */
+.viewer-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.viewer-tab {
+  --tab-color: var(--accent);
+  --tab-bright: var(--ink-strong);
+
+  position: relative;
+  border: 1px solid transparent;
+  border-top: 3px solid var(--tab-color);
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--tab-bright);
+  opacity: 0.82;
+  padding: 10px 16px 12px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.viewer-tab:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.viewer-tab.active {
+  opacity: 1;
+  background: var(--panel);
+  border-color: var(--line);
+  border-bottom: 1px solid var(--panel);
+}
+
+.viewer-tab[data-tab="summary"] {
+  --tab-color: var(--solarized-cyan);
+  --tab-bright: #8fd0c9;
+}
+
+.viewer-tab[data-tab="details"] {
+  --tab-color: var(--solarized-blue);
+  --tab-bright: #8fd2ff;
+}
+
+.viewer-tab[data-tab="links"] {
+  --tab-color: var(--solarized-teal);
+  --tab-bright: var(--solarized-teal-bright);
+}
+
+.viewer-tab[data-tab="docs"] {
+  --tab-color: var(--solarized-violet);
+  --tab-bright: #a8adff;
+}
+
+.viewer-tab[data-tab="images"] {
+  --tab-color: var(--solarized-magenta);
+  --tab-bright: #ff9ecb;
+}
+
+.viewer-tab-panel {
+  display: none;
+  min-height: 480px;
+  padding-top: 18px;
+}
+
+.viewer-tab-panel.active {
+  display: block;
+}
+
+.viewer-tab-panel .section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.viewer-tab-panel .section:last-child {
+  padding-bottom: 24px;
+}
+
+.viewer-tab-panel .empty-text {
+  color: var(--muted);
+  margin-top: 16px;
+}
+
+.viewer-tab-panel .meta-line {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.section-docs {
+  --section-accent: var(--solarized-violet);
+  --section-heading: #a8adff;
+}
+
+.links-list a .tag {
+  margin-left: 8px;
+}
+
+/* Larger editor inputs */
+#editorBackdrop .form-grid {
+  gap: 18px;
+}
+
+#editorBackdrop #summary,
+#editorBackdrop #spark,
+#editorBackdrop #next,
+#editorBackdrop #blockers,
+#editorBackdrop #links,
+#editorBackdrop #images,
+#editorBackdrop #docs {
+  min-height: 150px;
+}
+
+#editorBackdrop #details {
+  min-height: 240px;
+}
+
+#editorBackdrop #docs {
+  min-height: 190px;
+}
+
+#editorBackdrop #links,
+#editorBackdrop #images {
+  min-height: 170px;
+}
+
   </style>
 </head>
 <body>
@@ -1085,28 +1221,39 @@ textarea {
 
           <div class="field">
             <label for="summary">Summary</label>
-            <textarea id="summary" name="summary" rows="2"></textarea>
+            <textarea id="summary" name="summary" rows="4"></textarea>
           </div>
 
           <div class="field">
             <label for="details">Details</label>
-            <textarea id="details" name="details" rows="5"></textarea>
+            <textarea id="details" name="details" rows="10"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="docs">Documents / PDFs</label>
+            <textarea
+              id="docs"
+              name="docs"
+              rows="6"
+              placeholder="Label: https://example.com/doc.pdf&#10;https://example.com/spec.pdf"
+            ></textarea>
+            <div class="hint">One document per line. Use “Label: URL” or just a URL.</div>
           </div>
 
           <div class="field">
             <label for="spark">Spark / why now</label>
-            <textarea id="spark" name="spark" rows="2"></textarea>
+            <textarea id="spark" name="spark" rows="4"></textarea>
           </div>
 
           <div class="field">
             <label for="next">Next action</label>
-            <textarea id="next" name="next" rows="2"></textarea>
+            <textarea id="next" name="next" rows="4"></textarea>
             <div class="hint">A project can only be “growing” if this is filled.</div>
           </div>
 
           <div class="field">
             <label for="blockers">Blockers</label>
-            <textarea id="blockers" name="blockers" rows="2"></textarea>
+            <textarea id="blockers" name="blockers" rows="4"></textarea>
           </div>
 
           <div class="field">
@@ -1116,13 +1263,23 @@ textarea {
 
           <div class="field">
             <label for="links">Links</label>
-            <textarea id="links" name="links" rows="3" placeholder="Label: https://example.com&#10;https://example.com/other"></textarea>
+            <textarea
+              id="links"
+              name="links"
+              rows="6"
+              placeholder="Label: https://example.com&#10;https://example.com/other"
+            ></textarea>
             <div class="hint">One link per line. Use “Label: URL” or just a URL.</div>
           </div>
 
           <div class="field">
             <label for="images">Images</label>
-            <textarea id="images" name="images" rows="3" placeholder="/assets/sketch.png&#10;https://example.com/image.jpg"></textarea>
+            <textarea
+              id="images"
+              name="images"
+              rows="6"
+              placeholder="/assets/sketch.png&#10;https://example.com/image.jpg"
+            ></textarea>
             <div class="hint">One image per line. Use local paths under /assets/ or full URLs.</div>
           </div>
         </div>
@@ -1171,6 +1328,7 @@ textarea {
     let currentStatusFilter = "all";
     let editorNotes = [];
     let editingNoteIndex = null;
+    let viewerActiveTab = "summary";
 
     const els = {
       stats: document.getElementById("stats"),
@@ -1214,6 +1372,7 @@ textarea {
       love: document.getElementById("love"),
       summary: document.getElementById("summary"),
       details: document.getElementById("details"),
+      docs: document.getElementById("docs"),
       spark: document.getElementById("spark"),
       next: document.getElementById("next"),
       blockers: document.getElementById("blockers"),
@@ -1438,6 +1597,53 @@ textarea {
       return (images || []).join("\n");
     }
 
+    function docsToText(docs) {
+      if (typeof docs === "string") return docs;
+
+      return (docs || [])
+        .map(item => {
+          if (typeof item === "string") return item;
+
+          if (item && typeof item === "object") {
+            const label = String(item.label || "").trim();
+            const url = String(item.url || "").trim();
+
+            if (label && url) return `${label}: ${url}`;
+            return url || label || "";
+          }
+
+          return "";
+        })
+        .filter(Boolean)
+        .join("\n");
+    }
+
+    function renderDocs(docs) {
+      const items = parseLinksText(String(docs || ""));
+
+      if (!items.length) {
+        return `<p class="empty-text">No documents yet.</p>`;
+      }
+
+      const rows = items
+        .map(item => {
+          const url = String(item.url || "").trim();
+          const label = String(item.label || url).trim() || url;
+
+          const isUrl = /^(https?:|\/|#|mailto:|tel:)/i.test(url);
+          const pdfBadge = /\.pdf$/i.test(url) ? ` <span class="tag">PDF</span>` : "";
+
+          const inner = isUrl
+            ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}${pdfBadge}</a>`
+            : `<span>${escapeHtml(label)}</span>`;
+
+          return `<li>${inner}</li>`;
+        })
+        .join("");
+
+      return `<ul class="links-list">${rows}</ul>`;
+    }
+
     function today() {
       const d = new Date();
       const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -1473,6 +1679,7 @@ textarea {
         "Links": "section-links",
         "Images": "section-images",
         "Notes": "section-notes",
+        "Documents": "section-docs",
       };
 
       return map[title] || "";
@@ -1489,6 +1696,26 @@ textarea {
           ${content}
         </section>
       `;
+    }
+
+    function activateViewerTab(tab) {
+      const allowed = ["summary", "details", "links", "docs", "images"];
+
+      if (!allowed.includes(tab)) {
+        tab = "summary";
+      }
+
+      viewerActiveTab = tab;
+
+      els.viewerBody.querySelectorAll(".viewer-tab").forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      els.viewerBody.querySelectorAll(".viewer-tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `viewer-panel-${tab}`);
+      });
     }
 
     function isLikelyUrl(url) {
@@ -1562,6 +1789,18 @@ textarea {
         for (const link of links) {
           lines.push(`- ${markdownLinkFor(link)}`);
         }
+        lines.push("");
+      }
+
+      const docs = String(project.docs || "").trim();
+
+      if (docs) {
+        lines.push("## Documents");
+        docs
+          .split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean)
+          .forEach(line => lines.push(`- ${line}`));
         lines.push("");
       }
 
@@ -1714,6 +1953,7 @@ textarea {
         love,
         summary: String(raw.summary || "").trim(),
         details: String(raw.details || "").trim(),
+        docs: Array.isArray(raw.docs) ? raw.docs.join("\n") : String(raw.docs || "").trim(),
         spark: String(raw.spark || "").trim(),
         next,
         blockers: String(raw.blockers || "").trim(),
@@ -1941,6 +2181,7 @@ textarea {
 
     async function openViewer(project) {
       currentProject = project;
+      viewerActiveTab = "summary";
       renderViewer(project);
       els.viewerBackdrop.classList.add("open");
 
@@ -1996,26 +2237,137 @@ textarea {
         </div>
       `;
 
-      els.viewerBody.innerHTML = `
+      const tagsSection = tags
+        ? `<section class="section section-tags"><h4>Tags</h4><div class="card-tags">${tags}</div></section>`
+        : "";
+
+      const linksSection = links
+        ? `<section class="section section-links"><h4>Links</h4><ul class="links-list">${links}</ul></section>`
+        : `<p class="empty-text">No links yet.</p>`;
+
+      const imagesSection = images
+        ? `<section class="section section-images"><h4>Images</h4><div class="images-grid">${images}</div></section>`
+        : `<p class="empty-text">No images yet.</p>`;
+
+      const summaryPanel = `
         ${sectionIf("Summary", renderStructuredText(project.summary))}
-        ${sectionIf("Details", renderStructuredText(project.details))}
         ${sectionIf("Spark / why now", renderStructuredText(project.spark))}
         ${sectionIf("Next action", renderStructuredText(project.next))}
         ${sectionIf("Blockers", renderStructuredText(project.blockers))}
-
-        ${tags ? `<section class="section section-tags"><h4>Tags</h4><div class="card-tags">${tags}</div></section>` : ""}
-
-        ${links ? `<section class="section section-links"><h4>Links</h4><ul class="links-list">${links}</ul></section>` : ""}
-
-        ${images ? `<section class="section section-images"><h4>Images</h4><div class="images-grid">${images}</div></section>` : ""}
-
+        ${tagsSection}
         <section class="section section-notes">
           <h4>Notes</h4>
           ${renderNotes(project.notes || [])}
         </section>
-
         ${metaLine}
       `;
+
+      const detailsPanel =
+        sectionIf("Details", renderStructuredText(project.details)) ||
+        `<p class="empty-text">No details yet.</p>`;
+
+      const docsPanel = `
+        <section class="section section-docs">
+          <h4>Documents</h4>
+          ${renderDocs(project.docs || "")}
+        </section>
+      `;
+
+      els.viewerBody.innerHTML = `
+        <nav class="viewer-tabs" role="tablist">
+          <button
+            type="button"
+            class="viewer-tab${viewerActiveTab === "summary" ? " active" : ""}"
+            data-tab="summary"
+            role="tab"
+            aria-selected="${viewerActiveTab === "summary" ? "true" : "false"}"
+          >
+            Summary
+          </button>
+
+          <button
+            type="button"
+            class="viewer-tab${viewerActiveTab === "details" ? " active" : ""}"
+            data-tab="details"
+            role="tab"
+            aria-selected="${viewerActiveTab === "details" ? "true" : "false"}"
+          >
+            Details
+          </button>
+
+          <button
+            type="button"
+            class="viewer-tab${viewerActiveTab === "links" ? " active" : ""}"
+            data-tab="links"
+            role="tab"
+            aria-selected="${viewerActiveTab === "links" ? "true" : "false"}"
+          >
+            Links
+          </button>
+
+          <button
+            type="button"
+            class="viewer-tab${viewerActiveTab === "docs" ? " active" : ""}"
+            data-tab="docs"
+            role="tab"
+            aria-selected="${viewerActiveTab === "docs" ? "true" : "false"}"
+          >
+            Docs
+          </button>
+
+          <button
+            type="button"
+            class="viewer-tab${viewerActiveTab === "images" ? " active" : ""}"
+            data-tab="images"
+            role="tab"
+            aria-selected="${viewerActiveTab === "images" ? "true" : "false"}"
+          >
+            Images
+          </button>
+        </nav>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "summary" ? " active" : ""}"
+          id="viewer-panel-summary"
+          role="tabpanel"
+        >
+          ${summaryPanel}
+        </div>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "details" ? " active" : ""}"
+          id="viewer-panel-details"
+          role="tabpanel"
+        >
+          ${detailsPanel}
+        </div>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "links" ? " active" : ""}"
+          id="viewer-panel-links"
+          role="tabpanel"
+        >
+          ${linksSection}
+        </div>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "docs" ? " active" : ""}"
+          id="viewer-panel-docs"
+          role="tabpanel"
+        >
+          ${docsPanel}
+        </div>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "images" ? " active" : ""}"
+          id="viewer-panel-images"
+          role="tabpanel"
+        >
+          ${imagesSection}
+        </div>
+      `;
+
+      activateViewerTab(viewerActiveTab);
     }
 
     function renderNotes(notes) {
@@ -2133,6 +2485,7 @@ textarea {
         love: Boolean(currentProject.love),
         summary: currentProject.summary,
         details: currentProject.details,
+        docs: currentProject.docs,
         spark: currentProject.spark,
         next: currentProject.next,
         blockers: currentProject.blockers,
@@ -2225,6 +2578,7 @@ textarea {
         love: false,
         summary: "",
         details: "",
+        docs: "",
         spark: "",
         next: "",
         blockers: "",
@@ -2253,6 +2607,7 @@ textarea {
 
       fields.summary.value = draft.summary || "";
       fields.details.value = draft.details || "";
+      fields.docs.value = docsToText(draft.docs || "");
       fields.spark.value = draft.spark || "";
       fields.next.value = draft.next || "";
       fields.blockers.value = draft.blockers || "";
@@ -2338,6 +2693,12 @@ textarea {
     els.viewerBody.addEventListener("click", event => {
       if (!currentProject) return;
 
+      const tabBtn = event.target.closest(".viewer-tab");
+      if (tabBtn) {
+        activateViewerTab(tabBtn.dataset.tab);
+        return;
+      }
+
       if (event.target.closest("#addNoteBtn")) {
         addNote();
         return;
@@ -2419,6 +2780,7 @@ textarea {
         version: Math.max(1, version),
         summary: fields.summary.value.trim(),
         details: fields.details.value.trim(),
+        docs: fields.docs.value.trim(),
         spark: fields.spark.value.trim(),
         next,
         blockers: fields.blockers.value.trim(),
@@ -2515,3 +2877,4 @@ textarea {
   </script>
 </body>
 </html>
+
