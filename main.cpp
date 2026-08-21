@@ -15,9 +15,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <chrono>
 #include <climits>
-#include <cstring>
 #include <ctime>
 #include <cstdlib>
 #include <filesystem>
@@ -69,10 +67,7 @@ struct Config {
     int max_projects = 10;
     int max_growing = 3;
 
-    bool has_host = false;
     bool has_port = false;
-    bool has_max_projects = false;
-    bool has_max_growing = false;
 };
 
 struct ConfigError : std::runtime_error {
@@ -190,6 +185,13 @@ static bool parse_json(const std::string& body, Document& doc) {
     return !doc.HasParseError();
 }
 
+static bool doc_from_line(const std::string& line, Document& doc) {
+    if (!parse_json(line, doc) || !doc.IsObject()) {
+        return false;
+    }
+    return true;
+}
+
 static const Value& get_member(const Value& obj, const char* key, const Value& null_value) {
     if (obj.IsObject()) {
         auto it = obj.FindMember(key);
@@ -282,12 +284,16 @@ static int get_int(const Value& obj, const char* key, int default_value) {
         else if (v.IsInt64()) val = v.GetInt64();
         else val = static_cast<long long>(v.GetUint64());
 
-        // Python behavior: `value or default`
-        if (val == 0) return default_value;
-
         if (val > INT32_MAX) return INT32_MAX;
         if (val < INT32_MIN) return INT32_MIN;
         return static_cast<int>(val);
+    }
+
+    if (v.IsDouble()) {
+        double d = v.GetDouble();
+        if (d > INT32_MAX) return INT32_MAX;
+        if (d < INT32_MIN) return INT32_MIN;
+        return static_cast<int>(d);
     }
 
     if (v.IsString()) {
@@ -700,7 +706,6 @@ static Config load_config(const fs::path& path) {
         if (key == "host") {
             if (!value.empty()) {
                 cfg.host = value;
-                cfg.has_host = true;
             }
         } else if (key == "port") {
             int v = parse_int_from_string(value, 0);
@@ -727,7 +732,6 @@ static Config load_config(const fs::path& path) {
             }
 
             cfg.max_projects = v;
-            cfg.has_max_projects = true;
         } else if (key == "max_growing") {
             int v = parse_int_from_string(value, 0);
 
@@ -740,7 +744,6 @@ static Config load_config(const fs::path& path) {
             }
 
             cfg.max_growing = v;
-            cfg.has_max_growing = true;
         } else {
             g_logger->debug("Ignoring unknown config key: {}", key);
         }
@@ -853,7 +856,7 @@ static void save_projects_locked(const std::vector<std::string>& projects) {
 static std::optional<std::string> find_project_line_locked(const std::vector<std::string>& projects, const std::string& project_id) {
     for (const auto& line : projects) {
         Document doc;
-        if (parse_json(line, doc) && get_text(doc, "id", "") == project_id) {
+        if (doc_from_line(line, doc) && get_text(doc, "id", "") == project_id) {
             return line;
         }
     }
@@ -874,7 +877,7 @@ static int count_growing_locked(const std::vector<std::string>& projects, const 
 
     for (const auto& line : projects) {
         Document doc;
-        if (!parse_json(line, doc)) continue;
+        if (!doc_from_line(line, doc)) continue;
 
         std::string id = get_text(doc, "id", "");
         std::string status = get_text(doc, "status", "");
@@ -889,7 +892,7 @@ static int count_growing_locked(const std::vector<std::string>& projects, const 
 
 static std::string status_from_line(const std::string& line) {
     Document doc;
-    if (parse_json(line, doc)) {
+    if (doc_from_line(line, doc)) {
         return get_text(doc, "status", "seed");
     }
     return "seed";
@@ -898,7 +901,7 @@ static std::string status_from_line(const std::string& line) {
 static void replace_project_line_locked(std::vector<std::string>& projects, const std::string& project_id, const std::string& new_line) {
     for (auto& line : projects) {
         Document doc;
-        if (parse_json(line, doc) && get_text(doc, "id", "") == project_id) {
+        if (doc_from_line(line, doc) && get_text(doc, "id", "") == project_id) {
             line = new_line;
         }
     }
@@ -970,7 +973,7 @@ static void api_meta(const httplib::Request&, httplib::Response& res) {
 
     for (const auto& line : projects) {
         Document doc;
-        if (!parse_json(line, doc)) continue;
+        if (!doc_from_line(line, doc)) continue;
 
         std::string status = get_text(doc, "status", "seed");
         if (status == "growing") ++growing;
@@ -1004,7 +1007,7 @@ static void api_list_projects(const httplib::Request& req, httplib::Response& re
         std::vector<std::string> filtered;
         for (const auto& line : projects) {
             Document doc;
-            if (parse_json(line, doc) && get_text(doc, "status", "") == status) {
+            if (doc_from_line(line, doc) && get_text(doc, "status", "") == status) {
                 filtered.push_back(line);
             }
         }
@@ -1017,7 +1020,7 @@ static void api_list_projects(const httplib::Request& req, httplib::Response& re
 
         for (const auto& line : projects) {
             Document doc;
-            if (!parse_json(line, doc)) continue;
+            if (!doc_from_line(line, doc)) continue;
 
             std::string haystack;
             haystack += get_text(doc, "title", "");
@@ -1129,7 +1132,7 @@ static void api_update_project(const httplib::Request& req, httplib::Response& r
     }
 
     Document old_doc;
-    if (!parse_json(*old_line_opt, old_doc)) {
+    if (!doc_from_line(*old_line_opt, old_doc)) {
         throw AppException(500, "Failed to parse existing project.");
     }
 
@@ -1186,7 +1189,7 @@ static void api_delete_project(const httplib::Request& req, httplib::Response& r
 
     for (const auto& line : projects) {
         Document doc;
-        if (parse_json(line, doc) && get_text(doc, "id", "") == project_id) {
+        if (doc_from_line(line, doc) && get_text(doc, "id", "") == project_id) {
             found = true;
         } else {
             remaining.push_back(line);
@@ -1221,7 +1224,7 @@ static void api_mark_viewed(const httplib::Request& req, httplib::Response& res)
     }
 
     Document doc;
-    if (!parse_json(*line_opt, doc)) {
+    if (!doc_from_line(*line_opt, doc)) {
         throw AppException(500, "Failed to parse existing project.");
     }
 
@@ -1265,7 +1268,7 @@ static void api_add_note(const httplib::Request& req, httplib::Response& res) {
     }
 
     Document project;
-    if (!parse_json(*line_opt, project)) {
+    if (!doc_from_line(*line_opt, project)) {
         throw AppException(500, "Failed to parse existing project.");
     }
 
@@ -1344,7 +1347,6 @@ static bool setup_logging() {
         return false;
     }
 }
-
 
 // -----------------------------------------------------------------------------
 // Main

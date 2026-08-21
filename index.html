@@ -12,7 +12,6 @@
   --panel-soft: #152227;
 
   --card-tint-base: #111b1f;
-  --card-tint-base-hover: #152227;
 
   --solarized-cyan: #2aa198;
   --solarized-blue: #268bd2;
@@ -33,22 +32,16 @@
   --line-strong: #334850;
 
   --accent: #3aa79d;
-  --accent-soft: #102a2b;
 
   --warn: #d4a017;
   --warn-soft: #2e2a17;
   --danger: #d8504a;
-  --danger-soft: #3d2221;
 
   --heart: #ff6b81;
 
   --seed-color: #8b93ff;
   --growing-color: #a8c96b;
   --parked-color: #d99853;
-
-  --high-color: #ff8a80;
-  --medium-color: #e6c07a;
-  --low-color: #93a7ad;
 }
 
 * {
@@ -544,8 +537,7 @@ textarea {
   color: var(--ink);
 }
 
-.section p.empty-text,
-.section li.empty-text {
+.section p.empty-text {
   color: var(--muted);
 }
 
@@ -729,10 +721,6 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
-.note-row:last-of-type {
-  border-bottom: 1px solid var(--line);
-}
-
 .note-row:hover .note-actions,
 .note-row:focus-within .note-actions {
   opacity: 1;
@@ -764,6 +752,10 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 10px;
+}
+
+.note-row-editing .note-actions {
+  opacity: 1;
 }
 
 .note-row-editing input {
@@ -916,13 +908,6 @@ textarea {
   cursor: default;
 }
 
-.import-status {
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  min-height: 1.2em;
-}
-
 /* Toasts */
 .toast-container {
   position: fixed;
@@ -1025,6 +1010,11 @@ textarea {
 .viewer-tab[data-tab="details"] {
   --tab-color: var(--solarized-blue);
   --tab-bright: #8fd2ff;
+}
+
+.viewer-tab[data-tab="blockers"] {
+  --tab-color: #c44536;
+  --tab-bright: #ff8a83;
 }
 
 .viewer-tab[data-tab="links"] {
@@ -1132,7 +1122,6 @@ textarea {
   background: var(--panel-soft);
   display: block;
 }
-
   </style>
 </head>
 <body>
@@ -1405,6 +1394,17 @@ textarea {
       images: document.getElementById("images"),
     };
 
+    const viewerTabs = [
+      { id: "summary", label: "Summary" },
+      { id: "details", label: "Details" },
+      { id: "blockers", label: "Blockers" },
+      { id: "links", label: "Links" },
+      { id: "docs", label: "Docs" },
+      { id: "images", label: "Images" },
+    ];
+
+    const viewerTabIds = viewerTabs.map((tab) => tab.id);
+
     // -----------------------------
     // Helpers
     // -----------------------------
@@ -1442,6 +1442,26 @@ textarea {
       return `${loveIconHtml(project)}${escapeHtml(project?.title || "")}`;
     }
 
+    function tagsArray(project) {
+      if (Array.isArray(project?.tags)) return project.tags;
+      if (typeof project?.tags === "string") {
+        return project.tags.split(",").map((tag) => tag.trim()).filter(Boolean);
+      }
+      return [];
+    }
+
+    function imagesList(project) {
+      const raw = project?.images;
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === "string") return raw.split(/\r?\n/);
+      return [];
+    }
+
+    function notesArray(project) {
+      if (Array.isArray(project?.notes)) return project.notes;
+      return [];
+    }
+
     function projectMeta(project) {
       const confidence = Number(project.confidence ?? 0);
       const nextMissing = !String(project.next || "").trim();
@@ -1463,46 +1483,46 @@ textarea {
     function renderStructuredText(raw) {
       const text = String(raw || "").trim();
       if (!text) return "";
-    
+
       const lines = text.split(/\r?\n/);
-    
+
       // A "keyed" list line: top-level dashed line of the form "KEY: description".
       // Indented (nested) lines are deliberately excluded from the column alignment.
       function keyedParse(line) {
         if (!line.trim()) return null;
         const indent = (line.match(/^\s*/)[0] || "").length;
         if (indent >= 2) return null; // nested → never aligned
-    
+
         const listMatch = line.trim().match(/^(?:-|–|—|\*)\s+(.*)$/);
         if (!listMatch) return null;
-    
+
         const content = listMatch[1].trim();
         const colonIndex = content.indexOf(":");
         if (colonIndex <= 0 || colonIndex >= 48) return null;
-    
+
         const label = content.slice(0, colonIndex).trim();
         if (!label) return null;
-    
+
         const rest = content.slice(colonIndex + 1).trim();
         return { label, rest };
       }
-    
+
       // Single line, current look (bullet / label / text as flex). Used for every
       // line that is NOT part of a keyed column block.
       function singleLine(line) {
         const trimmed = line.trim();
         const indent = (line.match(/^\s*/)[0] || "").length;
         const nestedClass = indent >= 2 ? " nested" : "";
-    
+
         const listMatch = trimmed.match(/^(?:-|–|—|\*)\s+(.*)$/);
         if (listMatch) {
           const content = listMatch[1].trim();
           const colonIndex = content.indexOf(":");
-    
+
           if (colonIndex > 0 && colonIndex < 48) {
             const label = content.slice(0, colonIndex).trim();
             const rest = content.slice(colonIndex + 1).trim();
-    
+
             return `
               <div class="list-line${nestedClass}">
                 <span class="bullet">–</span>
@@ -1511,7 +1531,7 @@ textarea {
               </div>
             `;
           }
-    
+
           return `
             <div class="list-line${nestedClass}">
               <span class="bullet">–</span>
@@ -1519,12 +1539,12 @@ textarea {
             </div>
           `;
         }
-    
+
         const colonIndex = trimmed.indexOf(":");
         if (colonIndex > 0 && colonIndex < 48) {
           const label = trimmed.slice(0, colonIndex).trim();
           const rest = trimmed.slice(colonIndex + 1).trim();
-    
+
           return `
             <div class="title-line${nestedClass}">
               <span class="label">${escapeHtml(label)}:</span>
@@ -1532,10 +1552,10 @@ textarea {
             </div>
           `;
         }
-    
+
         return `<div class="plain-line"><span class="text">${escapeHtml(trimmed)}</span></div>`;
       }
-    
+
       // One contiguous block of keyed lines → a grid so the label track sizes to
       // the widest *rendered* label and every description starts on the same x.
       function keyedBlock(items) {
@@ -1548,38 +1568,38 @@ textarea {
             </div>
           `)
           .join("");
-    
+
         return `<div class="keyed-list">${rows}</div>`;
       }
-    
+
       const parts = [];
       let buffer = [];
-    
+
       const flush = () => {
         if (buffer.length) {
           parts.push(keyedBlock(buffer));
           buffer = [];
         }
       };
-    
+
       for (const line of lines) {
         if (!line.trim()) {
           flush();
           parts.push(`<div class="blank-line"></div>`);
           continue;
         }
-    
+
         const keyed = keyedParse(line);
         if (keyed) {
           buffer.push(keyed);
           continue;
         }
-    
+
         flush();
         parts.push(singleLine(line));
       }
       flush();
-    
+
       return `<div class="structured-text">${parts.join("")}</div>`;
     }
 
@@ -1654,7 +1674,7 @@ textarea {
           const url = String(item.url || "").trim();
           const label = String(item.label || url).trim() || url;
 
-          const isUrl = /^(https?:|\/|#|mailto:|tel:)/i.test(url);
+          const isUrl = isLikelyUrl(url);
           const pdfBadge = /\.pdf$/i.test(url) ? ` <span class="tag">PDF</span>` : "";
 
           const inner = isUrl
@@ -1723,9 +1743,7 @@ textarea {
     }
 
     function activateViewerTab(tab) {
-      const allowed = ["summary", "details", "links", "docs", "images"];
-
-      if (!allowed.includes(tab)) {
+      if (!viewerTabIds.includes(tab)) {
         tab = "summary";
       }
 
@@ -1796,9 +1814,7 @@ textarea {
         lines.push("");
       }
 
-      const tags = Array.isArray(project.tags)
-        ? project.tags
-        : String(project.tags || "").split(",").map(tag => tag.trim()).filter(Boolean);
+      const tags = tagsArray(project);
 
       if (tags.length) {
         lines.push("## Tags");
@@ -1828,7 +1844,7 @@ textarea {
         lines.push("");
       }
 
-      const notes = Array.isArray(project.notes) ? project.notes : [];
+      const notes = notesArray(project);
 
       if (notes.length) {
         lines.push("## Notes");
@@ -2169,17 +2185,13 @@ textarea {
     // -----------------------------
 
     function projectToCard(project) {
-      const tags = (Array.isArray(project.tags) ? project.tags : [])
+      const tags = tagsArray(project)
         .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
         .join("");
 
       const preview = project.summary || project.details || project.next || "";
 
-      const rawImages = project.images;
-      const images = Array.isArray(rawImages)
-        ? rawImages
-        : (typeof rawImages === "string" ? rawImages.split(/\r?\n/) : []);
-
+      const images = imagesList(project);
       const firstImage = images.find(src => String(src || "").trim()) || "";
 
       return `
@@ -2254,13 +2266,13 @@ textarea {
       els.viewerTitle.innerHTML = titleWithLove(project);
       els.viewerStickers.innerHTML = projectMeta(project);
 
-      const tags = (Array.isArray(project.tags) ? project.tags : [])
+      const tags = tagsArray(project)
         .map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`)
         .join("");
 
       const links = (Array.isArray(project.links) ? project.links : [])
         .map(link => {
-          const isUrl = /^(https?:|\/|#)/i.test(link.url || "");
+          const isUrl = isLikelyUrl(link.url);
           const inner = isUrl
             ? `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)}</a>`
             : `<span>${escapeHtml(link.label)}</span>`;
@@ -2269,7 +2281,7 @@ textarea {
         })
         .join("");
 
-      const images = (Array.isArray(project.images) ? project.images : [])
+      const images = imagesList(project)
         .map(src => `<img src="${escapeHtml(src)}" alt="${escapeHtml(project.title)}" loading="lazy" />`)
         .join("");
 
@@ -2296,7 +2308,6 @@ textarea {
         ${sectionIf("Summary", renderStructuredText(project.summary))}
         ${sectionIf("Spark / why now", renderStructuredText(project.spark))}
         ${sectionIf("Next action", renderStructuredText(project.next))}
-        ${sectionIf("Blockers", renderStructuredText(project.blockers))}
         ${tagsSection}
         <section class="section section-notes">
           <h4>Notes</h4>
@@ -2309,6 +2320,10 @@ textarea {
         sectionIf("Details", renderStructuredText(project.details)) ||
         `<p class="empty-text">No details yet.</p>`;
 
+      const blockersPanel =
+        sectionIf("Blockers", renderStructuredText(project.blockers)) ||
+        `<p class="empty-text">No blockers yet.</p>`;
+
       const docsPanel = `
         <section class="section section-docs">
           <h4>Documents</h4>
@@ -2316,59 +2331,21 @@ textarea {
         </section>
       `;
 
-      els.viewerBody.innerHTML = `
-        <nav class="viewer-tabs" role="tablist">
+      const navHtml = viewerTabs
+        .map(tab => `
           <button
             type="button"
-            class="viewer-tab${viewerActiveTab === "summary" ? " active" : ""}"
-            data-tab="summary"
+            class="viewer-tab${viewerActiveTab === tab.id ? " active" : ""}"
+            data-tab="${tab.id}"
             role="tab"
-            aria-selected="${viewerActiveTab === "summary" ? "true" : "false"}"
+            aria-selected="${viewerActiveTab === tab.id ? "true" : "false"}"
           >
-            Summary
+            ${tab.label}
           </button>
+        `)
+        .join("");
 
-          <button
-            type="button"
-            class="viewer-tab${viewerActiveTab === "details" ? " active" : ""}"
-            data-tab="details"
-            role="tab"
-            aria-selected="${viewerActiveTab === "details" ? "true" : "false"}"
-          >
-            Details
-          </button>
-
-          <button
-            type="button"
-            class="viewer-tab${viewerActiveTab === "links" ? " active" : ""}"
-            data-tab="links"
-            role="tab"
-            aria-selected="${viewerActiveTab === "links" ? "true" : "false"}"
-          >
-            Links
-          </button>
-
-          <button
-            type="button"
-            class="viewer-tab${viewerActiveTab === "docs" ? " active" : ""}"
-            data-tab="docs"
-            role="tab"
-            aria-selected="${viewerActiveTab === "docs" ? "true" : "false"}"
-          >
-            Docs
-          </button>
-
-          <button
-            type="button"
-            class="viewer-tab${viewerActiveTab === "images" ? " active" : ""}"
-            data-tab="images"
-            role="tab"
-            aria-selected="${viewerActiveTab === "images" ? "true" : "false"}"
-          >
-            Images
-          </button>
-        </nav>
-
+      const panelHtml = `
         <div
           class="viewer-tab-panel${viewerActiveTab === "summary" ? " active" : ""}"
           id="viewer-panel-summary"
@@ -2383,6 +2360,14 @@ textarea {
           role="tabpanel"
         >
           ${detailsPanel}
+        </div>
+
+        <div
+          class="viewer-tab-panel${viewerActiveTab === "blockers" ? " active" : ""}"
+          id="viewer-panel-blockers"
+          role="tabpanel"
+        >
+          ${blockersPanel}
         </div>
 
         <div
@@ -2408,6 +2393,13 @@ textarea {
         >
           ${imagesSection}
         </div>
+      `;
+
+      els.viewerBody.innerHTML = `
+        <nav class="viewer-tabs" role="tablist">
+          ${navHtml}
+        </nav>
+        ${panelHtml}
       `;
 
       activateViewerTab(viewerActiveTab);
@@ -2519,26 +2511,8 @@ textarea {
 
     function projectPayloadForNoteChange(newNotes) {
       return {
-        id: currentProject.id,
-        title: currentProject.title,
-        status: currentProject.status,
-        priority: currentProject.priority,
-        confidence: currentProject.confidence,
-        version: currentProject.version,
-        love: Boolean(currentProject.love),
-        summary: currentProject.summary,
-        details: currentProject.details,
-        docs: currentProject.docs,
-        spark: currentProject.spark,
-        next: currentProject.next,
-        blockers: currentProject.blockers,
-        tags: currentProject.tags,
-        links: currentProject.links,
-        images: currentProject.images,
+        ...currentProject,
         notes: newNotes,
-        createdAt: currentProject.createdAt,
-        updatedAt: currentProject.updatedAt,
-        lastViewed: currentProject.lastViewed,
       };
     }
 
@@ -2555,7 +2529,7 @@ textarea {
         return;
       }
 
-      const notes = [...(currentProject.notes || [])];
+      const notes = [...notesArray(currentProject)];
       notes[index] = {
         date: dateInput?.value || today(),
         text,
@@ -2581,11 +2555,11 @@ textarea {
     async function deleteNote(index) {
       if (!currentProject) return;
 
-      const note = currentProject.notes?.[index];
+      const note = notesArray(currentProject)[index];
       const confirmed = window.confirm(`Delete “${note?.text || "this note"}”? This cannot be undone.`);
       if (!confirmed) return;
 
-      const notes = [...(currentProject.notes || [])];
+      const notes = [...notesArray(currentProject)];
       notes.splice(index, 1);
 
       try {
@@ -2654,7 +2628,7 @@ textarea {
       fields.spark.value = draft.spark || "";
       fields.next.value = draft.next || "";
       fields.blockers.value = draft.blockers || "";
-      fields.tags.value = Array.isArray(draft.tags) ? draft.tags.join(", ") : String(draft.tags || "");
+      fields.tags.value = tagsArray(draft).join(", ");
       fields.links.value = linksToText(draft.links);
       fields.images.value = imagesToText(draft.images);
 
