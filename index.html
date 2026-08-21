@@ -1109,6 +1109,30 @@ textarea {
   min-height: 170px;
 }
 
+.card-summary-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 14px;
+}
+
+.card-summary-row .card-preview {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.card-thumb {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  display: block;
+}
+
   </style>
 </head>
 <body>
@@ -2151,6 +2175,13 @@ textarea {
 
       const preview = project.summary || project.details || project.next || "";
 
+      const rawImages = project.images;
+      const images = Array.isArray(rawImages)
+        ? rawImages
+        : (typeof rawImages === "string" ? rawImages.split(/\r?\n/) : []);
+
+      const firstImage = images.find(src => String(src || "").trim()) || "";
+
       return `
         <article class="card status-${escapeHtml(project.status)}" data-id="${escapeHtml(project.id)}">
           <h3>${titleWithLove(project)}</h3>
@@ -2159,7 +2190,19 @@ textarea {
             ${projectMeta(project)}
           </div>
 
-          <p class="card-preview">${escapeHtml(preview)}</p>
+          ${preview || firstImage ? `
+            <div class="card-summary-row">
+              ${preview ? `<p class="card-preview">${escapeHtml(preview)}</p>` : ""}
+              ${firstImage ? `
+                <img
+                  class="card-thumb"
+                  src="${escapeHtml(firstImage)}"
+                  alt="${escapeHtml(project.title)}"
+                  loading="lazy"
+                />
+              ` : ""}
+            </div>
+          ` : ""}
 
           ${tags ? `<div class="card-tags">${tags}</div>` : ""}
         </article>
